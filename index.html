@@ -7,12 +7,46 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header class="site-header">
+    <div class="logo-placeholder" aria-label="Logo de Wardex">
+      <img src="imagenes/Logo_final.png" alt="Logo de Wardex" class="logo">
+    </div>
 
-  <header></header>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a href="#inicio">Inicio</a>
+      <a href="#instalacion">Instalación</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#proyecto">Proyecto</a>
+    </nav>
 
-  <main></main>
+    <a class="login-button" href="#login">LOG IN</a>
+  </header>
 
-  <footer></footer>
+  <main>
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">
+          Tu servidor tiene<br>
+          puntos debiles,<br>
+          <span>Wardex los<br>encuentra primero</span>
+        </h1>
+      </div>
+
+      <div class="hero-action">
+        <p>Wardex es un bot de ciberseguridad<br>
+          encargado de detectar automáticamente<br>
+          <strong>actividad sospechosa</strong> o inusual dentro de<br>
+          tu página web
+        </p>
+        <a class="primary-button" href="#instalacion">Probar Ahora</a>
+      </div>
+    </section>
+
+    <section class="empty-section" id="instalacion" aria-label="Instalación"></section>
+    <section class="empty-section" id="dashboard" aria-label="Dashboard"></section>
+    <section class="empty-section" id="proyecto" aria-label="Proyecto"></section>
+    <section class="empty-section" id="login" aria-label="Inicio de sesión"></section>
+  </main>
 
   <script src="index.js" defer></script>
 </body>
