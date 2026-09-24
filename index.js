@@ -1,5 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const header = document.querySelector('.site-header');
   const navLinks = document.querySelectorAll('.nav-link');
+
+  const updateHeader = () => {
+    // 1vh de scroll antes de activar el fondo difuminado
+    header.classList.toggle('is-scrolled', window.scrollY > window.innerHeight * 0.01);
+  };
+
+  updateHeader();
+  window.addEventListener('scroll', updateHeader, { passive: true });
 
   navLinks.forEach((link) => {
     link.addEventListener('click', () => {
