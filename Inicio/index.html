@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wardex</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardex</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+  <script src="index.js" defer></script>
   <header class="site-header">
-    <div class="logo-placeholder" aria-label="Logo de Wardex">
-      <img src="imagenes/Logo_final.png" alt="Logo de Wardex" class="logo">
-    </div>
+    <button type="button" class="logo-placeholder">
+      <img src="../imagenes/Logo_final.png" alt="Logo de Wardex" class="logo">
+    </button>
 
     <nav class="main-nav" aria-label="Navegación principal">
-      <a class="nav-link is-active" href="#inicio" aria-current="page">Inicio</a>
-      <a class="nav-link" href="#para-que-sirve">Para qué sirve</a>
-      <a class="nav-link" href="#integraciones">Integraciones</a>
-      <a class="nav-link" href="#proyecto">Proyecto</a>
+      <button type="button" class="nav-link is-active" aria-current="page">Inicio</button>
+      <button type="button" class="nav-link">Para qué sirve</button>
+      <button type="button" class="nav-link" onclick="cambiarCredenciales()">Integraciones</button>
+      <button type="button" class="nav-link">Proyecto</button>
     </nav>
 
-    <a class="login-button" href="#login">Iniciar sesión</a>
+    <button type="button" class="login-button">Iniciar sesión</button>
   </header>
 
   <main>
@@ -104,6 +105,5 @@
     <section class="empty-section" id="login" aria-label="Inicio de sesión"></section>
   </main>
 
-  <script src="index.js" defer></script>
 </body>
 </html>

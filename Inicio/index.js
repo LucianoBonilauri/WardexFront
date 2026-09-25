@@ -22,3 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// La ruta es relativa a Inicio/index.html, por eso sube una carpeta con ../
+function cambiarCredenciales() {
+    window.location.href = "../credenciales/credenciales.html";
+}
