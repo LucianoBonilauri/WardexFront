@@ -1,0 +1,185 @@
+/* La pantalla ocupa exactamente el alto de la ventana y no scrollea */
+.credenciales-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.credenciales {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 7vh 4vw 7.4vh;
+}
+
+/* Los tamaños de letra usan min(vw, vh) para que siempre entren en pantalla, aunque sea ancha y baja */
+.credenciales h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2.2rem, min(4.3vw, 7.6vh), 4.6rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.credencial-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4vh;
+  margin-top: 5.5vh;
+}
+
+.generar-button,
+.copiar-button,
+.guia-button,
+.entendido-button {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.generar-button:hover,
+.copiar-button:hover,
+.guia-button:hover,
+.entendido-button:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+.generar-button {
+  width: 32vw;
+  min-height: 7.2vh;
+  border: 0.15vh solid var(--violet);
+  border-radius: 4vh;
+  color: var(--violet);
+  font-size: clamp(1rem, min(2.6vw, 4.6vh), 2.8rem);
+}
+
+.credencial-box {
+  display: flex;
+  align-items: center;
+  width: 43.4vw;
+  height: 14.2vh;
+  padding-right: 0.7vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 1.6vh;
+  background: #171a27;
+}
+
+/* El código queda centrado en el espacio que deja libre el botón Copiar */
+.credencial-code {
+  flex: 1;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, min(5.6vw, 10vh), 6rem);
+  line-height: 1;
+  text-align: center;
+}
+
+.copiar-button {
+  flex: 0 0 auto;
+  width: 8vw;
+  height: 7.7vh;
+  border: 0.15vh solid var(--violet);
+  border-radius: 4vh;
+  color: var(--violet);
+  font-size: clamp(0.9rem, min(1.95vw, 3.4vh), 2rem);
+}
+
+.guia-button {
+  align-self: flex-start;
+  min-height: 7.5vh;
+  margin-top: auto;
+  padding: 0 1.6vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 1.2vh;
+  background: #171a27;
+  color: #ffffff;
+  font-size: clamp(0.9rem, min(1.95vw, 3.4vh), 2rem);
+}
+
+/* Ventana de la guía: el navegador la centra sola cuando se abre con showModal() */
+.guia-dialog {
+  width: 51.8vw;
+  height: 81vh;
+  padding: 6vh 3vw 5.6vh;
+  border: 0.15vh solid #40424d;
+  border-radius: 3.1vh;
+  background: #171a27;
+  box-shadow: 0 3vh 8vh rgba(0, 0, 0, 0.45);
+  color: var(--text);
+}
+
+.guia-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: aparecer 200ms ease;
+}
+
+/* Fondo de atrás del modal: oscurecido y borroso */
+.guia-dialog::backdrop {
+  background: rgba(11, 13, 24, 0.55);
+  -webkit-backdrop-filter: blur(1.2vh);
+  backdrop-filter: blur(1.2vh);
+  animation: aparecer 200ms ease;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+.guia-dialog h2 {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(1.8rem, min(2.3vw, 4.25vh), 3rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+/* Línea divisoria y botón, siempre pegados al fondo de la ventana */
+.guia-footer {
+  margin-top: auto;
+  padding-top: 2.9vh;
+  border-top: 0.15vh solid #3a3d49;
+}
+
+.entendido-button {
+  min-height: 5.1vh;
+  padding: 0 1.45vw;
+  border: 0.15vh solid var(--violet);
+  border-radius: 1vh;
+  color: var(--violet);
+  font-size: clamp(0.9rem, min(1vw, 1.85vh), 1.3rem);
+}
+
+@media (max-width: 52rem) {
+  .guia-dialog {
+    width: 90vw;
+    padding: 4vh 6vw 3vh;
+  }
+
+  .entendido-button {
+    padding: 0 5vw;
+  }
+
+  .generar-button {
+    width: 80vw;
+  }
+
+  .credencial-box {
+    width: 92vw;
+    padding-right: 2vw;
+  }
+
+  .copiar-button {
+    width: auto;
+    height: 5vh;
+    padding: 0 4vw;
+  }
+
+  .guia-button {
+    padding: 0 5vw;
+  }
+}

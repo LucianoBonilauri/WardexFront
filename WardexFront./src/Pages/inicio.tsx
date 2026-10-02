@@ -1,9 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import logo from '../assets/Logo_final.png'
+import type { ReactNode } from 'react'
+import Header, { type Pagina } from '../Components/header.tsx'
 import './inicio.css'
-
-const NAV_ITEMS = ['Inicio', 'Para qué sirve', 'Integraciones', 'Proyecto'] as const
-type NavItem = (typeof NAV_ITEMS)[number]
 
 type Beneficio = {
   titulo: string
@@ -47,57 +44,14 @@ const BENEFICIOS: Beneficio[] = [
   },
 ]
 
-// 1vh de scroll antes de activar el fondo difuminado
-function estaScrolleado(): boolean {
-  return window.scrollY > window.innerHeight * 0.01
+type InicioProps = {
+  onCambiarPagina: (pagina: Pagina) => void
 }
 
-// TODO: la página de credenciales todavía no existe en el proyecto de React.
-// Cuando la armemos, esta función tiene que navegar hacia ella.
-function cambiarCredenciales(): void {}
-
-function Inicio() {
-  const [isScrolled, setIsScrolled] = useState(estaScrolleado)
-  const [activeItem, setActiveItem] = useState<NavItem>('Inicio')
-
-  useEffect(() => {
-    const updateHeader = () => setIsScrolled(estaScrolleado())
-
-    window.addEventListener('scroll', updateHeader, { passive: true })
-    return () => window.removeEventListener('scroll', updateHeader)
-  }, [])
-
-  const handleNavClick = (item: NavItem) => {
-    setActiveItem(item)
-
-    if (item === 'Integraciones') {
-      cambiarCredenciales()
-    }
-  }
-
+function Inicio({ onCambiarPagina }: InicioProps) {
   return (
     <>
-      <header className={isScrolled ? 'site-header is-scrolled' : 'site-header'}>
-        <button type="button" className="logo-placeholder">
-          <img src={logo} alt="Logo de Wardex" className="logo" />
-        </button>
-
-        <nav className="main-nav" aria-label="Navegación principal">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={item === activeItem ? 'nav-link is-active' : 'nav-link'}
-              aria-current={item === activeItem ? 'page' : undefined}
-              onClick={() => handleNavClick(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
-
-        <button type="button" className="login-button">Iniciar sesión</button>
-      </header>
+      <Header paginaActual="inicio" onCambiarPagina={onCambiarPagina} />
 
       <main>
         <section className="hero" id="inicio" aria-labelledby="hero-title">
