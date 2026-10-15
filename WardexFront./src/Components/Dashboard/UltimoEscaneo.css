@@ -1,0 +1,27 @@
+.agente {
+  display: flex;
+  align-items: center;
+  gap: 0.6vw;
+}
+
+/* Punto de estado: hueco si no hay agente, verde lleno si está activo */
+.agente::before {
+  content: "";
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 0.95vh;
+  aspect-ratio: 1;
+  border: 0.2vh solid #8d8e97;
+  border-radius: 50%;
+}
+
+.agente.is-activo::before {
+  border-color: #4c7463;
+  background: #4c7463;
+}
+
+@media (max-width: 52rem) {
+  .agente {
+    gap: 2vw;
+  }
+}

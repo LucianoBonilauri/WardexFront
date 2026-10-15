@@ -1,0 +1,13 @@
+/* Pista gris de fondo; sin datos se ve solo esta */
+.seguridad-barra {
+  height: 0.7vh;
+  overflow: hidden;
+  border-radius: 0.7vh;
+  background: #30313d;
+}
+
+.seguridad-relleno {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5c5784, var(--violet));
+}

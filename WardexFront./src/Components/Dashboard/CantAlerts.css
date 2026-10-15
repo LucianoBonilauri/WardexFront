@@ -1,0 +1,65 @@
+.alerta-criticas {
+  --color-alerta: #e16666;
+}
+
+.alerta-altas {
+  --color-alerta: #e79547;
+}
+
+.alerta-medias {
+  --color-alerta: #d3bd6c;
+}
+
+.alertas-barra {
+  display: flex;
+  gap: 0.35vw;
+  height: 0.7vh;
+}
+
+/* Sin datos (o sin ninguna alerta) queda solo la pista gris */
+.alertas-barra:empty {
+  border-radius: 0.7vh;
+  background: #30313d;
+}
+
+.alertas-tramo {
+  flex-basis: 0;
+  border-radius: 0.7vh;
+  background: var(--color-alerta);
+}
+
+.alertas-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6vh 1.4vw;
+  padding: 0;
+  list-style: none;
+}
+
+.alertas-leyenda li {
+  display: flex;
+  align-items: center;
+  gap: 0.55vw;
+}
+
+.alertas-leyenda li::before {
+  content: "";
+  width: 0.85vh;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-alerta);
+}
+
+@media (max-width: 52rem) {
+  .alertas-barra {
+    gap: 1.2vw;
+  }
+
+  .alertas-leyenda {
+    gap: 0.6vh 4vw;
+  }
+
+  .alertas-leyenda li {
+    gap: 1.6vw;
+  }
+}
