@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import logo from '../assets/Logo_final.png'
 import './header.css'
 
-export type Pagina = 'inicio' | 'credenciales'
+export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'dashboard'
 
 const NAV_ITEMS = ['Inicio', 'Para qué sirve', 'Instalación', 'Proyecto'] as const
 type NavItem = (typeof NAV_ITEMS)[number]
@@ -11,12 +11,14 @@ type NavItem = (typeof NAV_ITEMS)[number]
 const PAGINA_DE_ITEM: Partial<Record<NavItem, Pagina>> = {
   Inicio: 'inicio',
   Instalación: 'credenciales',
+  Proyecto: 'dashboard',
 }
 
-// Qué ítem del menú aparece resaltado al entrar a cada página
-const ITEM_DE_PAGINA: Record<Pagina, NavItem> = {
+// Qué ítem del menú aparece resaltado al entrar a cada página (registro e iniciar sesión no tienen ninguno)
+const ITEM_DE_PAGINA: Partial<Record<Pagina, NavItem>> = {
   inicio: 'Inicio',
   credenciales: 'Instalación',
+  dashboard: 'Proyecto',
 }
 
 // 1vh de scroll antes de activar el fondo difuminado
@@ -31,7 +33,7 @@ type HeaderProps = {
 
 function Header({ paginaActual, onCambiarPagina }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(estaScrolleado)
-  const [activeItem, setActiveItem] = useState<NavItem>(ITEM_DE_PAGINA[paginaActual])
+  const [activeItem, setActiveItem] = useState<NavItem | undefined>(ITEM_DE_PAGINA[paginaActual])
 
   useEffect(() => {
     const updateHeader = () => setIsScrolled(estaScrolleado())
@@ -69,7 +71,12 @@ function Header({ paginaActual, onCambiarPagina }: HeaderProps) {
         ))}
       </nav>
 
-      <button type="button" className="login-button">Iniciar sesión</button>
+      {/* En registro e iniciar sesión no se muestra: ya estás ahí. Sin él, el menú queda pegado a la derecha */}
+      {paginaActual !== 'registro' && paginaActual !== 'iniciarSesion' && (
+        <button type="button" className="login-button" onClick={() => onCambiarPagina('registro')}>
+          Iniciar sesión
+        </button>
+      )}
     </header>
   )
 }

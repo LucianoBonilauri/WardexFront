@@ -1,0 +1,160 @@
+/* Estilos compartidos por Registro e Iniciar sesión: misma tarjeta, campos y botones */
+
+/* Header arriba y la tarjeta centrada en el espacio que queda debajo */
+.cuenta-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.cuenta {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  padding: 4vh 4vw;
+}
+
+/* Mismo estilo que la ventana de la guía de instalación */
+.cuenta-card {
+  width: 34vw;
+  padding: 6.5vh 3.2vw 3.6vh;
+  border: 0.15vh solid #40424d;
+  border-radius: 3.1vh;
+  background: #171a27;
+  box-shadow: 0 3vh 8vh rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+/* Los tamaños de letra usan min(vw, vh) para que siempre entren en pantalla, aunque sea ancha y baja */
+.cuenta-card h1 {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(2rem, min(2.5vw, 4.9vh), 3.4rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.cuenta-lead {
+  margin: 1.2vh 0 0;
+  color: #b1b2b9;
+  font-size: clamp(1rem, min(1.1vw, 2.15vh), 1.45rem);
+  line-height: 1.4;
+}
+
+.cuenta-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.7vh;
+  margin-top: 4.6vh;
+}
+
+.cuenta-input {
+  width: 100%;
+  height: 6.9vh;
+  padding: 0 0.75vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 1vh;
+  background: #1d2030;
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(1.05rem, min(1.15vw, 2.25vh), 1.5rem);
+  transition: border-color 180ms ease;
+}
+
+.cuenta-input::placeholder {
+  color: #80828c;
+}
+
+.cuenta-input:focus {
+  outline: none;
+  border-color: var(--violet);
+}
+
+/* El ojito va adentro del campo de contraseña, a la derecha */
+.cuenta-password {
+  position: relative;
+}
+
+.cuenta-password .cuenta-input {
+  padding-right: 3.4vw;
+}
+
+.ver-contrasena {
+  position: absolute;
+  top: 50%;
+  right: 1vw;
+  display: grid;
+  place-items: center;
+  height: 2.7vh;
+  aspect-ratio: 1;
+  color: var(--violet);
+  transform: translateY(-50%);
+}
+
+.ver-contrasena svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cuenta-submit,
+.cuenta-link {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.cuenta-submit:hover,
+.cuenta-link:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+.cuenta-submit {
+  align-self: center;
+  width: 13.7vw;
+  height: 6.3vh;
+  margin-top: 1.9vh;
+  border: 0.15vh solid var(--violet);
+  border-radius: 1vh;
+  color: var(--violet);
+  font-size: clamp(1.1rem, min(1.4vw, 2.7vh), 1.8rem);
+}
+
+.cuenta-footer {
+  margin: 5.6vh 0 0;
+  padding-top: 3.2vh;
+  border-top: 0.15vh solid #3a3d49;
+  color: #b1b2b9;
+  font-size: clamp(1rem, min(1.1vw, 2.15vh), 1.45rem);
+}
+
+.cuenta-link {
+  display: inline-block;
+  color: #d2cefd;
+}
+
+@media (max-width: 52rem) {
+  .cuenta-card {
+    width: 92vw;
+    padding: 5vh 6vw 3vh;
+  }
+
+  .cuenta-input {
+    padding: 0 3vw;
+  }
+
+  .cuenta-password .cuenta-input {
+    padding-right: 12vw;
+  }
+
+  .ver-contrasena {
+    right: 3vw;
+  }
+
+  .cuenta-submit {
+    width: 60vw;
+  }
+}
