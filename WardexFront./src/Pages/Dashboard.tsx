@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import CantAlerts, { type Alertas } from '../Components/Dashboard/CantAlerts.tsx'
+import type { Alerta } from '../Components/Dashboard/Alert.tsx'
+import CantAlerts from '../Components/Dashboard/CantAlerts.tsx'
+import ListaAlertas from '../Components/Dashboard/ListaAlertas.tsx'
 import NiveldeSeguridad from '../Components/Dashboard/NiveldeSeguridad.tsx'
 import UltimoEscaneo from '../Components/Dashboard/UltimoEscaneo.tsx'
 import Header, { type Pagina } from '../Components/header.tsx'
 import NombreEmpresa from '../Components/NombreEmpresa.tsx'
 import './Dashboard.css'
 
-// Lo que trae un escaneo de la base de datos. Cada card usa solo su parte
+// Lo que trae un escaneo de la base de datos. Cada card y la lista de alertas usan solo su parte
 type DatosEscaneo = {
   nivelSeguridad: number
-  alertas: Alertas
+  alertas: Alerta[]
   fecha: Date
 }
 
@@ -20,7 +22,7 @@ type DashboardProps = {
 
 function Dashboard({ onCambiarPagina, nombreEmpresa }: DashboardProps) {
   // null = todavía no hay escaneo, y las cards se muestran vacías.
-  // TODO: cuando exista el backend, sumar setEscaneo y guardar acá el último escaneo; las cards se llenan solas
+  // TODO: cuando exista el backend, sumar setEscaneo y guardar acá el último escaneo; las cards y la lista se llenan solas
   const [escaneo] = useState<DatosEscaneo | null>(null)
 
   return (
@@ -35,6 +37,8 @@ function Dashboard({ onCambiarPagina, nombreEmpresa }: DashboardProps) {
           <CantAlerts alertas={escaneo?.alertas} />
           <UltimoEscaneo fecha={escaneo?.fecha} />
         </section>
+
+        <ListaAlertas alertas={escaneo?.alertas} onInstalar={() => onCambiarPagina('credenciales')} />
       </main>
     </div>
   )

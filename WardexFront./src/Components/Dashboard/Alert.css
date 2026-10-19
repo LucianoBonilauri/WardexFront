@@ -1,0 +1,109 @@
+/* Fila: número, título con su gravedad y el botón Ver más a la derecha */
+.alerta {
+  display: grid;
+  grid-template-columns: 2.7vw minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1.5vw;
+  padding: 2.35vh 1.05vw 2.35vh 1.8vw;
+  border-radius: 1.2vh;
+  background: #11131e;
+}
+
+.alerta-numero {
+  color: #8d8e97;
+  font-size: clamp(0.9rem, min(1.25vw, 2vh), 1.35rem);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Si el título es largo, la etiqueta de gravedad baja a la línea de abajo */
+.alerta-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8vh 1.1vw;
+}
+
+.alerta-titulo {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(1rem, min(1.5vw, 2.4vh), 1.6rem);
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+/* El color sale de la clase gravedad-* (está en Dashboard.css) */
+.alerta-gravedad {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55vw;
+  min-height: 3.2vh;
+  padding: 0 0.85vw 0 0.8vw;
+  border-radius: 0.6vh;
+  background: color-mix(in srgb, var(--color-gravedad) 15%, transparent);
+  color: var(--color-gravedad);
+  font-size: clamp(0.7rem, min(0.88vw, 1.4vh), 1rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.alerta-gravedad::before {
+  content: "";
+  width: 0.6vh;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.alerta-ver-mas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7vw;
+  min-height: 4.9vh;
+  padding: 0 1.1vw 0 1.3vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 0.9vh;
+  color: #e9e9ed;
+  font-size: clamp(0.9rem, min(1.3vw, 2.1vh), 1.4rem);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.alerta-ver-mas:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+.alerta-ver-mas svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 52rem) {
+  .alerta {
+    grid-template-columns: 5vw minmax(0, 1fr) auto;
+    column-gap: 3vw;
+    padding: 2vh 3vw 2vh 4vw;
+  }
+
+  .alerta-info {
+    gap: 1vh 2vw;
+  }
+
+  .alerta-gravedad {
+    gap: 1.5vw;
+    padding: 0 2.5vw;
+  }
+
+  .alerta-ver-mas {
+    gap: 1.5vw;
+    padding: 0 3vw;
+  }
+}

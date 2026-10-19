@@ -11,6 +11,19 @@
   padding: 4vh 3vw;
 }
 
+/* Color de cada gravedad: lo usan la card de Cantidad de alertas y las etiquetas de la lista de alertas */
+.gravedad-critica {
+  --color-gravedad: #e16666;
+}
+
+.gravedad-alta {
+  --color-gravedad: #e79547;
+}
+
+.gravedad-media {
+  --color-gravedad: #d3bd6c;
+}
+
 /* Las tres cards de estadísticas: una al lado de la otra y todas del mismo alto */
 .stat-grid {
   display: grid;

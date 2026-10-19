@@ -1,15 +1,4 @@
-.alerta-criticas {
-  --color-alerta: #e16666;
-}
-
-.alerta-altas {
-  --color-alerta: #e79547;
-}
-
-.alerta-medias {
-  --color-alerta: #d3bd6c;
-}
-
+/* El color de cada tramo y de cada punto sale de la clase gravedad-* (está en Dashboard.css) */
 .alertas-barra {
   display: flex;
   gap: 0.35vw;
@@ -25,7 +14,7 @@
 .alertas-tramo {
   flex-basis: 0;
   border-radius: 0.7vh;
-  background: var(--color-alerta);
+  background: var(--color-gravedad);
 }
 
 .alertas-leyenda {
@@ -47,7 +36,7 @@
   width: 0.85vh;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--color-alerta);
+  background: var(--color-gravedad);
 }
 
 @media (max-width: 52rem) {

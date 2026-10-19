@@ -1,46 +1,44 @@
+import type { Alerta } from './Alert.tsx'
 import './CantAlerts.css'
-
-export type Alertas = {
-  criticas: number
-  altas: number
-  medias: number
-}
 
 // Orden en el que aparecen en la barra y en la leyenda
 const TIPOS = [
-  { clave: 'criticas', singular: 'crítica', plural: 'críticas' },
-  { clave: 'altas', singular: 'alta', plural: 'altas' },
-  { clave: 'medias', singular: 'media', plural: 'medias' },
+  { gravedad: 'critica', singular: 'crítica', plural: 'críticas' },
+  { gravedad: 'alta', singular: 'alta', plural: 'altas' },
+  { gravedad: 'media', singular: 'media', plural: 'medias' },
 ] as const
 
 type CantAlertsProps = {
-  // Sin escaneo no llega y la card se muestra vacía
-  alertas?: Alertas
+  // Las alertas del último escaneo, que la card cuenta por gravedad. Sin escaneo no llegan y la card se muestra vacía
+  alertas?: Alerta[]
 }
 
 function CantAlerts({ alertas }: CantAlertsProps) {
+  const tipos = TIPOS.map((tipo) => ({
+    ...tipo,
+    cantidad: alertas?.filter((alerta) => alerta.gravedad === tipo.gravedad).length ?? 0,
+  }))
+
   return (
     <article className="stat-card">
       <h2 className="stat-label">Cantidad de alertas</h2>
 
       <p className="stat-valor">
-        {alertas
-          ? alertas.criticas + alertas.altas + alertas.medias
-          : <span className="stat-vacio" aria-hidden="true" />}
+        {alertas ? alertas.length : <span className="stat-vacio" aria-hidden="true" />}
       </p>
 
       {/* Cada tramo es tan largo como su cantidad; los tipos en 0 no se dibujan */}
       <div className="alertas-barra" aria-hidden="true">
-        {alertas && TIPOS.map(({ clave }) => alertas[clave] > 0 && (
-          <span key={clave} className={`alertas-tramo alerta-${clave}`} style={{ flexGrow: alertas[clave] }} />
+        {tipos.map(({ gravedad, cantidad }) => cantidad > 0 && (
+          <span key={gravedad} className={`alertas-tramo gravedad-${gravedad}`} style={{ flexGrow: cantidad }} />
         ))}
       </div>
 
       {alertas ? (
         <ul className="stat-pie alertas-leyenda">
-          {TIPOS.map(({ clave, singular, plural }) => (
-            <li key={clave} className={`alerta-${clave}`}>
-              {alertas[clave]} {alertas[clave] === 1 ? singular : plural}
+          {tipos.map(({ gravedad, cantidad, singular, plural }) => (
+            <li key={gravedad} className={`gravedad-${gravedad}`}>
+              {cantidad} {cantidad === 1 ? singular : plural}
             </li>
           ))}
         </ul>
