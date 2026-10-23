@@ -4,6 +4,7 @@ import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
 import IniciarSesion from './Pages/IniciarSesion.tsx'
 import Inicio from './Pages/inicio.tsx'
+import Perfil, { type Cuenta } from './Pages/Perfil.tsx'
 import Registro from './Pages/Registro.tsx'
 
 // Lo que se ve en la barra de direcciones en cada pantalla
@@ -13,6 +14,7 @@ const RUTAS: Record<Pagina, string> = {
   registro: '/Registro',
   iniciarSesion: '/Iniciar_Sesion',
   dashboard: '/Dashboard',
+  perfil: '/Perfil',
 }
 
 // La pantalla de la dirección actual, sin importar mayúsculas ni la barra del final. Si no es ninguna (como "/"), Inicio
@@ -24,6 +26,9 @@ function paginaDeLaUrl(): Pagina {
 
 function App() {
   const [pagina, setPagina] = useState<Pagina>(paginaDeLaUrl)
+  // La cuenta que inició sesión; la comparten Perfil y Dashboard. null = nadie inició sesión
+  // TODO: cuando exista el backend, guardarla con setCuenta al iniciar sesión o registrarse
+  const [cuenta, setCuenta] = useState<Cuenta | null>(null)
 
   useEffect(() => {
     // Al abrir la app, la dirección queda con el nombre de la pantalla: "/" o "/#integraciones" pasan a "/Inicio"
@@ -55,8 +60,11 @@ function App() {
   }
 
   if (pagina === 'dashboard') {
-    // TODO: cuando exista el backend, pasar el nombre de la empresa con nombreEmpresa={...}
-    return <Dashboard onCambiarPagina={cambiarPagina} />
+    return <Dashboard onCambiarPagina={cambiarPagina} nombreEmpresa={cuenta?.empresa} />
+  }
+
+  if (pagina === 'perfil') {
+    return <Perfil onCambiarPagina={cambiarPagina} cuenta={cuenta} onGuardar={setCuenta} />
   }
 
   return <Inicio onCambiarPagina={cambiarPagina} />

@@ -1,0 +1,388 @@
+.perfil-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Datos a la izquierda, la foto arriba a la derecha y Guardar cambios centrado abajo */
+.perfil {
+  --ancho-campos: 53.4vw;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "encabezado avatar"
+    "campos avatar"
+    "guardar guardar";
+  column-gap: 4vw;
+  padding: 7vh 4vw 8vh;
+}
+
+.perfil-encabezado {
+  grid-area: encabezado;
+}
+
+/* Los tamaños de letra usan min(vw, vh) para que siempre entren en pantalla, aunque sea ancha y baja */
+.perfil-encabezado h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2.2rem, min(4.3vw, 7.6vh), 4.6rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.perfil-subtitulo {
+  margin: 1.5vh 0 2.6vh;
+  color: #b1b2b9;
+  font-size: clamp(1rem, min(1.35vw, 2.2vh), 1.5rem);
+}
+
+/* Aviso de "Todavía no iniciaste sesión" */
+.perfil-aviso {
+  display: flex;
+  align-items: center;
+  gap: 1.65vw;
+  width: var(--ancho-campos);
+  margin-top: 2vh;
+  padding: 2.8vh 1.65vw;
+  border: 0.15vh solid #423a6a;
+  border-radius: 1.6vh;
+  background: #1e1d30;
+}
+
+.perfil-aviso-icono {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  height: 5.4vh;
+  aspect-ratio: 1;
+  border: 0.15vh solid color-mix(in srgb, var(--violet) 25%, transparent);
+  border-radius: 1vh;
+  background: color-mix(in srgb, var(--violet) 15%, transparent);
+  color: var(--violet);
+}
+
+.perfil-aviso-icono svg,
+.perfil-lapiz svg,
+.perfil-camara svg,
+.perfil-ojo svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.perfil-aviso-icono svg {
+  width: 45%;
+  height: 45%;
+}
+
+.perfil-aviso-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.perfil-aviso-texto p {
+  margin: 0.5vh 0 0;
+  color: #a9aab2;
+  font-size: clamp(0.9rem, min(1.2vw, 1.95vh), 1.3rem);
+  line-height: 1.5;
+}
+
+.perfil-aviso-texto .perfil-aviso-titulo {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
+  font-weight: 600;
+}
+
+.perfil-aviso-botones {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.9vw;
+}
+
+.perfil-aviso-botones button {
+  min-height: 5.1vh;
+  padding: 0 1.4vw;
+  border-radius: 0.9vh;
+  font-size: clamp(0.9rem, min(1.2vw, 2vh), 1.3rem);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.perfil-aviso-iniciar {
+  border: 0.15vh solid #40424d;
+  color: #e9e9ed;
+}
+
+.perfil-aviso-crear {
+  border: 0.15vh solid var(--violet);
+  color: var(--violet);
+}
+
+/* Campos */
+.perfil-campos {
+  display: flex;
+  grid-area: campos;
+  flex-direction: column;
+  gap: 3.7vh;
+  margin-top: 5.3vh;
+}
+
+.perfil-etiqueta {
+  display: block;
+  margin-bottom: 1.2vh;
+  color: #9fa0a9;
+  font-size: clamp(0.8rem, min(1.1vw, 1.95vh), 1.25rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.perfil-fila {
+  display: flex;
+  align-items: center;
+  gap: 1.05vw;
+  width: var(--ancho-campos);
+}
+
+.perfil-caja {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.perfil-fila.es-corta .perfil-caja {
+  flex: 0 1 32.6vw;
+}
+
+.perfil-input {
+  width: 100%;
+  height: 7.2vh;
+  padding: 0 1.5vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 1.05vh;
+  background: #1b1d29;
+  color: #e9e9ed;
+  font: inherit;
+  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
+  transition: border-color 180ms ease;
+}
+
+.perfil-input::placeholder {
+  color: #80828c;
+}
+
+.perfil-input:focus {
+  outline: none;
+}
+
+/* El campo que se está editando queda marcado en violeta */
+.perfil-input:read-write {
+  border-color: var(--violet);
+}
+
+.perfil-input.con-ojo {
+  padding-right: 4.2vw;
+}
+
+/* Puntitos de ejemplo cuando hay cuenta: se ven como un valor, no como un texto gris */
+.perfil-input.es-ejemplo::placeholder {
+  color: #e9e9ed;
+  letter-spacing: 0.12em;
+}
+
+.perfil-ojo {
+  position: absolute;
+  top: 50%;
+  right: 1.5vw;
+  display: grid;
+  place-items: center;
+  height: 2.6vh;
+  aspect-ratio: 1;
+  color: var(--violet);
+  transform: translateY(-50%);
+}
+
+.perfil-ojo svg {
+  width: 100%;
+  height: 100%;
+}
+
+.perfil-ojo:disabled {
+  cursor: default;
+}
+
+.perfil-lapiz {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  height: 5.9vh;
+  aspect-ratio: 1;
+  border: 0.15vh solid #40424d;
+  border-radius: 50%;
+  color: #e9e9ed;
+}
+
+.perfil-lapiz svg,
+.perfil-camara svg {
+  width: 40%;
+  height: 40%;
+}
+
+.perfil-lapiz:disabled {
+  cursor: default;
+}
+
+/* Foto: las iniciales de la empresa, o el ícono de usuario si no hay cuenta */
+.perfil-avatar {
+  position: relative;
+  display: grid;
+  grid-area: avatar;
+  align-self: start;
+  justify-self: end;
+  place-items: center;
+  width: 25vh;
+  aspect-ratio: 1;
+  margin-top: 8vh;
+  border: 0.15vh solid #4a4573;
+  border-radius: 4.4vh;
+  background: linear-gradient(160deg, #302f4f, #1c1c2c);
+}
+
+.perfil-avatar.es-vacio {
+  border: 0.15vh dashed #4a4b56;
+  background: #1b1c28;
+}
+
+.perfil-iniciales {
+  color: #e6e3ff;
+  font-size: 10vh;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.perfil-avatar-icono {
+  width: 33%;
+  fill: none;
+  stroke: #8d8e97;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.perfil-camara {
+  position: absolute;
+  right: -0.9vh;
+  bottom: -0.9vh;
+  display: grid;
+  place-items: center;
+  width: 6vh;
+  aspect-ratio: 1;
+  border: 0.15vh solid #40424d;
+  border-radius: 50%;
+  background: var(--background);
+  color: #e9e9ed;
+}
+
+/* Gris apagado mientras no haya nada para guardar */
+.perfil-guardar {
+  grid-area: guardar;
+  justify-self: center;
+  min-width: 21vw;
+  min-height: 6.7vh;
+  margin-top: 8vh;
+  padding: 0 3vw;
+  border: 0.15vh solid var(--violet);
+  border-radius: 6.7vh;
+  color: var(--violet);
+  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
+  font-weight: 600;
+}
+
+.perfil-guardar:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.perfil-aviso-botones button,
+.perfil-lapiz,
+.perfil-camara,
+.perfil-guardar {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.perfil-aviso-botones button:hover,
+.perfil-lapiz:not(:disabled):hover,
+.perfil-camara:hover,
+.perfil-guardar:not(:disabled):hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+@media (max-width: 52rem) {
+  .perfil {
+    --ancho-campos: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "encabezado"
+      "avatar"
+      "campos"
+      "guardar";
+    padding: 5vh 6vw 6vh;
+  }
+
+  .perfil-avatar {
+    justify-self: start;
+    width: 16vh;
+    margin-top: 3vh;
+  }
+
+  .perfil-iniciales {
+    font-size: 6.4vh;
+  }
+
+  .perfil-aviso {
+    flex-wrap: wrap;
+    gap: 2vh 4vw;
+    padding: 2.5vh 4vw;
+  }
+
+  .perfil-aviso-botones {
+    flex: 1 1 100%;
+    gap: 3vw;
+  }
+
+  .perfil-aviso-botones button {
+    flex: 1;
+    padding: 0 4vw;
+  }
+
+  .perfil-campos {
+    margin-top: 4vh;
+  }
+
+  .perfil-fila {
+    gap: 3vw;
+  }
+
+  .perfil-input {
+    padding: 0 4vw;
+  }
+
+  .perfil-input.con-ojo {
+    padding-right: 12vw;
+  }
+
+  .perfil-ojo {
+    right: 4vw;
+  }
+
+  .perfil-fila.es-corta .perfil-caja {
+    flex: 1;
+  }
+
+  .perfil-guardar {
+    min-width: 80vw;
+    margin-top: 6vh;
+  }
+}
