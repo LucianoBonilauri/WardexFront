@@ -4,21 +4,21 @@ import './header.css'
 
 export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'dashboard'
 
-const NAV_ITEMS = ['Inicio', 'Para qué sirve', 'Instalación', 'Proyecto'] as const
+const NAV_ITEMS = ['Inicio', 'Para qué sirve', 'Instalación', 'Dashboard'] as const
 type NavItem = (typeof NAV_ITEMS)[number]
 
 // Qué página abre cada ítem del menú. Los que no están todavía no hacen nada.
 const PAGINA_DE_ITEM: Partial<Record<NavItem, Pagina>> = {
   Inicio: 'inicio',
   Instalación: 'credenciales',
-  Proyecto: 'dashboard',
+  Dashboard: 'dashboard',
 }
 
 // Qué ítem del menú aparece resaltado al entrar a cada página (registro e iniciar sesión no tienen ninguno)
 const ITEM_DE_PAGINA: Partial<Record<Pagina, NavItem>> = {
   inicio: 'Inicio',
   credenciales: 'Instalación',
-  dashboard: 'Proyecto',
+  dashboard: 'Dashboard',
 }
 
 // 1vh de scroll antes de activar el fondo difuminado
@@ -71,10 +71,10 @@ function Header({ paginaActual, onCambiarPagina }: HeaderProps) {
         ))}
       </nav>
 
-      {/* En registro e iniciar sesión no se muestra: ya estás ahí. Sin él, el menú queda pegado a la derecha */}
+      {/* En registro e iniciar sesión no se muestra: ya estás en las pantallas de cuenta. Sin él, el menú queda pegado a la derecha */}
       {paginaActual !== 'registro' && paginaActual !== 'iniciarSesion' && (
         <button type="button" className="login-button" onClick={() => onCambiarPagina('registro')}>
-          Iniciar sesión
+          Probar Gratis
         </button>
       )}
     </header>

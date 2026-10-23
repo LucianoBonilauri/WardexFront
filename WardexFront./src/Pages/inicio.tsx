@@ -72,12 +72,12 @@ function Inicio({ onCambiarPagina }: InicioProps) {
               <strong>actividad sospechosa</strong> o inusual dentro de<br />
               tu página web
             </p>
-            <a className="primary-button" href="#integraciones">
+            <button type="button" className="primary-button" onClick={() => onCambiarPagina('registro')}>
               Probar Ahora
               <svg className="button-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </a>
+            </button>
           </div>
         </section>
 
@@ -102,10 +102,6 @@ function Inicio({ onCambiarPagina }: InicioProps) {
             ))}
           </div>
         </section>
-
-        <section className="empty-section" id="integraciones" aria-label="Integraciones"></section>
-        <section className="empty-section" id="proyecto" aria-label="Proyecto"></section>
-        <section className="empty-section" id="login" aria-label="Inicio de sesión"></section>
       </main>
     </>
   )

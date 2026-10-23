@@ -16,7 +16,7 @@ function Registro({ onCambiarPagina }: RegistroProps) {
       <main className="cuenta">
         <section className="cuenta-card" aria-labelledby="registro-title">
           <h1 id="registro-title">Registrarse</h1>
-          <p className="cuenta-lead">Creá tu cuenta y escaneá tu primer servidor gratis.</p>
+          <p className="cuenta-lead">Para empezar a usar WardeX, Creá una cuenta y escaneá tu primer servidor.</p>
 
           {/* TODO: cuando exista el backend, acá se mandan los datos de la cuenta */}
           <form className="cuenta-form" onSubmit={(event) => event.preventDefault()}>

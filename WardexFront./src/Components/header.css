@@ -78,10 +78,10 @@
   align-items: center;
   min-height: 5.5vh;
   padding: 0 1.25vw;
-  border: 0.15vh solid rgba(170, 176, 197, 0.28);
+  border: 0.15vh solid var(--violet);
   border-radius: 2vh;
-  background: rgba(20, 24, 39, 0.28);
-  color: #f1f2f6;
+  background: transparent;
+  color: var(--violet);
   font-size: clamp(0.85rem, 1.6vw, 1.45rem);
   white-space: nowrap;
 }

@@ -83,8 +83,9 @@
   padding: 8vh 4vw 7vh;
 }
 
+/* Abajo, el mismo espacio de 7vh que tiene la línea de arriba; ahí termina la página */
 .benefits {
-  padding: 0 4vw;
+  padding: 0 4vw 7vh;
 }
 
 .benefits::before {
@@ -97,10 +98,8 @@
 .benefits::after {
   content: "";
   display: block;
-  height: 0.15vh;
   margin-top: 12vh;
-  background: linear-gradient(90deg, transparent, rgba(170, 176, 197, 0.22) 12%,
-    rgba(170, 176, 197, 0.22) 88%, transparent);
+  border-top: var(--divider);
 }
 
 .benefits h2 {
@@ -202,10 +201,6 @@
   color: #b5b5bd;
   font-size: clamp(0.95rem, 1.45vw, 1.35rem);
   line-height: 1.35;
-}
-
-.empty-section {
-  min-height: 75vh;
 }
 
 @media (max-width: 52rem) {
