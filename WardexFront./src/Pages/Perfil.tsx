@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type SubmitEvent } from 'react'
+import AvisoSesion from '../Components/AvisoSesion.tsx'
 import Header, { type Pagina } from '../Components/header.tsx'
 import './Perfil.css'
 
@@ -128,30 +129,7 @@ function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
               {sinCuenta ? 'Acá vas a ver los datos de tu cuenta.' : 'Los datos de tu cuenta en Wardex.'}
             </p>
 
-            {sinCuenta && (
-              <div className="perfil-aviso">
-                <span className="perfil-aviso-icono" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false">
-                    <rect width="16" height="11" x="4" y="11" rx="2" />
-                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                  </svg>
-                </span>
-
-                <div className="perfil-aviso-texto">
-                  <p className="perfil-aviso-titulo">Todavía no iniciaste sesión</p>
-                  <p>Iniciá sesión o creá una cuenta para ver tu información.</p>
-                </div>
-
-                <div className="perfil-aviso-botones">
-                  <button type="button" className="perfil-aviso-iniciar" onClick={() => onCambiarPagina('iniciarSesion')}>
-                    Iniciar sesión
-                  </button>
-                  <button type="button" className="perfil-aviso-crear" onClick={() => onCambiarPagina('registro')}>
-                    Crear cuenta
-                  </button>
-                </div>
-              </div>
-            )}
+            <AvisoSesion estado={sinCuenta ? 'visible' : 'oculto'} onCambiarPagina={onCambiarPagina} />
           </div>
 
           <div className={cuenta ? 'perfil-avatar' : 'perfil-avatar es-vacio'}>

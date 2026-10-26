@@ -36,32 +36,12 @@
   font-size: clamp(1rem, min(1.35vw, 2.2vh), 1.5rem);
 }
 
-/* Aviso de "Todavía no iniciaste sesión" */
-.perfil-aviso {
-  display: flex;
-  align-items: center;
-  gap: 1.65vw;
+/* Dónde va el aviso de sesión en esta pantalla; el aviso en sí está en Components/AvisoSesion.css */
+.perfil-encabezado .aviso-sesion {
   width: var(--ancho-campos);
   margin-top: 2vh;
-  padding: 2.8vh 1.65vw;
-  border: 0.15vh solid #423a6a;
-  border-radius: 1.6vh;
-  background: #1e1d30;
 }
 
-.perfil-aviso-icono {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  height: 5.4vh;
-  aspect-ratio: 1;
-  border: 0.15vh solid color-mix(in srgb, var(--violet) 25%, transparent);
-  border-radius: 1vh;
-  background: color-mix(in srgb, var(--violet) 15%, transparent);
-  color: var(--violet);
-}
-
-.perfil-aviso-icono svg,
 .perfil-lapiz svg,
 .perfil-camara svg,
 .perfil-ojo svg {
@@ -70,55 +50,6 @@
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.perfil-aviso-icono svg {
-  width: 45%;
-  height: 45%;
-}
-
-.perfil-aviso-texto {
-  flex: 1;
-  min-width: 0;
-}
-
-.perfil-aviso-texto p {
-  margin: 0.5vh 0 0;
-  color: #a9aab2;
-  font-size: clamp(0.9rem, min(1.2vw, 1.95vh), 1.3rem);
-  line-height: 1.5;
-}
-
-.perfil-aviso-texto .perfil-aviso-titulo {
-  margin: 0;
-  color: #e9e9ed;
-  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
-  font-weight: 600;
-}
-
-.perfil-aviso-botones {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 0.9vw;
-}
-
-.perfil-aviso-botones button {
-  min-height: 5.1vh;
-  padding: 0 1.4vw;
-  border-radius: 0.9vh;
-  font-size: clamp(0.9rem, min(1.2vw, 2vh), 1.3rem);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.perfil-aviso-iniciar {
-  border: 0.15vh solid #40424d;
-  color: #e9e9ed;
-}
-
-.perfil-aviso-crear {
-  border: 0.15vh solid var(--violet);
-  color: var(--violet);
 }
 
 /* Campos */
@@ -304,14 +235,12 @@
   cursor: default;
 }
 
-.perfil-aviso-botones button,
 .perfil-lapiz,
 .perfil-camara,
 .perfil-guardar {
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
-.perfil-aviso-botones button:hover,
 .perfil-lapiz:not(:disabled):hover,
 .perfil-camara:hover,
 .perfil-guardar:not(:disabled):hover {
@@ -339,22 +268,6 @@
 
   .perfil-iniciales {
     font-size: 6.4vh;
-  }
-
-  .perfil-aviso {
-    flex-wrap: wrap;
-    gap: 2vh 4vw;
-    padding: 2.5vh 4vw;
-  }
-
-  .perfil-aviso-botones {
-    flex: 1 1 100%;
-    gap: 3vw;
-  }
-
-  .perfil-aviso-botones button {
-    flex: 1;
-    padding: 0 4vw;
   }
 
   .perfil-campos {

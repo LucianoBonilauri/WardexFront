@@ -1,0 +1,79 @@
+/* El ancho y la separación los decide cada pantalla que lo usa */
+.aviso-sesion {
+  display: flex;
+  align-items: center;
+  gap: 1.65vw;
+  padding: 2.8vh 1.65vw;
+  border: 0.15vh solid #423a6a;
+  border-radius: 1.6vh;
+  background: #1e1d30;
+}
+
+.aviso-sesion-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Los tamaños de letra usan min(vw, vh) para que siempre entren en pantalla, aunque sea ancha y baja */
+.aviso-sesion-texto p {
+  margin: 0.5vh 0 0;
+  color: #a9aab2;
+  font-size: clamp(0.9rem, min(1.2vw, 1.95vh), 1.3rem);
+  line-height: 1.5;
+}
+
+.aviso-sesion-texto .aviso-sesion-titulo {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
+  font-weight: 600;
+}
+
+.aviso-sesion-botones {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.9vw;
+}
+
+.aviso-sesion-botones button {
+  min-height: 5.1vh;
+  padding: 0 1.4vw;
+  border-radius: 0.9vh;
+  font-size: clamp(0.9rem, min(1.2vw, 2vh), 1.3rem);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.aviso-sesion-botones button:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+.aviso-sesion-iniciar {
+  border: 0.15vh solid #40424d;
+  color: #e9e9ed;
+}
+
+.aviso-sesion-crear {
+  border: 0.15vh solid var(--violet);
+  color: var(--violet);
+}
+
+@media (max-width: 52rem) {
+  .aviso-sesion {
+    flex-wrap: wrap;
+    gap: 2vh 4vw;
+    padding: 2.5vh 4vw;
+  }
+
+  .aviso-sesion-botones {
+    flex: 1 1 100%;
+    gap: 3vw;
+  }
+
+  .aviso-sesion-botones button {
+    flex: 1;
+    padding: 0 4vw;
+  }
+}
