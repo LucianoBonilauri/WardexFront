@@ -55,6 +55,61 @@
   font-size: clamp(1rem, min(2.6vw, 4.6vh), 2.8rem);
 }
 
+/* Generar mientras espera la respuesta; Copiar mientras no haya una credencial */
+.generar-button:disabled,
+.copiar-button:disabled {
+  opacity: 0.45;
+  transform: none;
+  cursor: default;
+}
+
+/* Nombre del servidor arriba de Generar credencial */
+.servidor-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6vh;
+}
+
+.servidor-input {
+  width: 32vw;
+  height: 6.3vh;
+  padding: 0 1.5vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 1vh;
+  background: #1d2030;
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(0.95rem, min(1.2vw, 2.2vh), 1.4rem);
+  text-align: center;
+  transition: border-color 180ms ease;
+}
+
+.servidor-input::placeholder {
+  color: #80828c;
+}
+
+.servidor-input:focus {
+  outline: none;
+  border-color: var(--violet);
+}
+
+.credencial-error,
+.credencial-aviso {
+  margin: 0;
+  font-size: clamp(0.9rem, min(1.2vw, 2vh), 1.3rem);
+  text-align: center;
+}
+
+.credencial-error {
+  color: #e16666;
+}
+
+/* Recordatorio de que la API key se muestra una sola vez */
+.credencial-aviso {
+  color: #d3bd6c;
+}
+
 .credencial-box {
   display: flex;
   align-items: center;
@@ -76,10 +131,22 @@
   text-align: center;
 }
 
+/* La API key real es mucho más larga que "000-000": letra más chica y de ancho fijo, y si no entra, baja de renglón */
+.credencial-code.es-key {
+  padding: 0 1.5vw;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.85rem, min(1.15vw, 2vh), 1.3rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+/* Ancho mínimo y no fijo: "Copiado" es más largo que "Copiar" */
 .copiar-button {
   flex: 0 0 auto;
-  width: 8vw;
+  min-width: 8vw;
   height: 7.7vh;
+  padding: 0 1.2vw;
   border: 0.15vh solid var(--violet);
   border-radius: 4vh;
   color: var(--violet);
@@ -164,8 +231,17 @@
     padding: 0 5vw;
   }
 
-  .generar-button {
+  .generar-button,
+  .servidor-input {
     width: 80vw;
+  }
+
+  .servidor-input {
+    padding: 0 4vw;
+  }
+
+  .credencial-code.es-key {
+    padding: 0 3vw;
   }
 
   .credencial-box {

@@ -1,5 +1,5 @@
 /* Mismo estilo que las otras tarjetas: fondo #171a27 y borde gris */
-.nombre-empresa {
+.nombre-usuario {
   display: flex;
   align-items: center;
   align-self: flex-start;
@@ -11,7 +11,7 @@
   background: #171a27;
 }
 
-.nombre-empresa h1 {
+.nombre-usuario h1 {
   margin: 0;
   color: #ffffff;
   font-size: clamp(1.4rem, min(2.2vw, 4vh), 2.6rem);
@@ -20,7 +20,7 @@
 }
 
 @media (max-width: 52rem) {
-  .nombre-empresa {
+  .nombre-usuario {
     align-self: stretch;
     padding: 2.2vh 6vw;
   }

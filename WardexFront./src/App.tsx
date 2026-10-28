@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
+import { alVencerLaSesion } from './api/cliente.ts'
+import { cuentaGuardada } from './api/cuenta.ts'
 import type { Pagina } from './Components/header.tsx'
 import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
 import IniciarSesion from './Pages/IniciarSesion.tsx'
 import Inicio from './Pages/inicio.tsx'
-import Perfil, { type Cuenta } from './Pages/Perfil.tsx'
+import Perfil from './Pages/Perfil.tsx'
 import Registro from './Pages/Registro.tsx'
+import type { Cuenta } from './tipos.ts'
 
 // Lo que se ve en la barra de direcciones en cada pantalla
 const RUTAS: Record<Pagina, string> = {
@@ -26,9 +29,18 @@ function paginaDeLaUrl(): Pagina {
 
 function App() {
   const [pagina, setPagina] = useState<Pagina>(paginaDeLaUrl)
-  // La cuenta que inició sesión; la comparten Perfil y Dashboard. null = nadie inició sesión
-  // TODO: cuando exista el backend, guardarla con setCuenta al iniciar sesión o registrarse
-  const [cuenta, setCuenta] = useState<Cuenta | null>(null)
+  // La cuenta que inició sesión; la comparten Perfil y Dashboard. null = nadie inició sesión.
+  // Al abrir o recargar la app se recupera la que quedó guardada en el navegador, si el token todavía vale
+  const [cuenta, setCuenta] = useState<Cuenta | null>(cuentaGuardada)
+
+  // El token dura 1 hora: cuando la API avisa que venció, se cierra la sesión y se vuelve al login
+  useEffect(() => {
+    alVencerLaSesion(() => {
+      setCuenta(null)
+      window.history.pushState(null, '', RUTAS.iniciarSesion)
+      setPagina('iniciarSesion')
+    })
+  }, [])
 
   useEffect(() => {
     // Al abrir la app, la dirección queda con el nombre de la pantalla: "/" o "/#integraciones" pasan a "/Inicio"
@@ -47,24 +59,32 @@ function App() {
     setPagina(nueva)
   }
 
+  // Después de iniciar sesión o registrarse
+  const entrar = (nueva: Cuenta) => {
+    setCuenta(nueva)
+    cambiarPagina('dashboard')
+  }
+
   if (pagina === 'credenciales') {
     return <Credenciales onCambiarPagina={cambiarPagina} />
   }
 
   if (pagina === 'registro') {
-    return <Registro onCambiarPagina={cambiarPagina} />
+    return <Registro onCambiarPagina={cambiarPagina} onEntrar={entrar} />
   }
 
   if (pagina === 'iniciarSesion') {
-    return <IniciarSesion onCambiarPagina={cambiarPagina} />
+    return <IniciarSesion onCambiarPagina={cambiarPagina} onEntrar={entrar} />
   }
 
   if (pagina === 'dashboard') {
-    return <Dashboard onCambiarPagina={cambiarPagina} nombreEmpresa={cuenta?.empresa} />
+    // Si el nombre no se conoce (se inició sesión en otro navegador), se muestra el correo
+    return <Dashboard onCambiarPagina={cambiarPagina} nombreUsuario={cuenta?.nombreUsuario || cuenta?.correo} conSesion={Boolean(cuenta)} />
   }
 
   if (pagina === 'perfil') {
-    return <Perfil onCambiarPagina={cambiarPagina} cuenta={cuenta} onGuardar={setCuenta} />
+    // La key hace que Perfil arranque de nuevo si cambia la sesión, para que los campos se llenen con los datos que corresponden
+    return <Perfil key={cuenta?.correo ?? 'sin-cuenta'} onCambiarPagina={cambiarPagina} cuenta={cuenta} />
   }
 
   return <Inicio onCambiarPagina={cambiarPagina} />

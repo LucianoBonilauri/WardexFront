@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { Servidor } from '../../tipos.ts'
 import './UltimoEscaneo.css'
 
 const MINUTO = 60_000
@@ -27,11 +28,12 @@ function cuando(fecha: Date, ahora: number): string {
 }
 
 type UltimoEscaneoProps = {
-  // Cuándo terminó el último escaneo. Sin escaneo no llega y la card se muestra vacía
-  fecha?: Date
+  // Los servidores del usuario. Sin sesión no llegan y la card se muestra vacía
+  servidores?: Servidor[]
 }
 
-function UltimoEscaneo({ fecha }: UltimoEscaneoProps) {
+// Muestra hace cuánto se comunicó por última vez un agente, y si alguno está conectado ahora
+function UltimoEscaneo({ servidores }: UltimoEscaneoProps) {
   const [ahora, setAhora] = useState(() => Date.now())
 
   // Con la página abierta, el "hace 12 min" se va actualizando solo
@@ -40,6 +42,10 @@ function UltimoEscaneo({ fecha }: UltimoEscaneoProps) {
     return () => clearInterval(id)
   }, [])
 
+  const tiempos = (servidores ?? []).flatMap((servidor) => (servidor.ultimoUso ? [servidor.ultimoUso.getTime()] : []))
+  const fecha = tiempos.length > 0 ? new Date(Math.max(...tiempos)) : null
+  const conectado = (servidores ?? []).some((servidor) => servidor.activo && servidor.conectado)
+
   if (!fecha) {
     return (
       <article className="stat-card">
@@ -47,7 +53,7 @@ function UltimoEscaneo({ fecha }: UltimoEscaneoProps) {
         <p className="stat-valor">
           <span className="stat-vacio" aria-hidden="true" />
         </p>
-        <p className="stat-pie agente">Agente sin instalar</p>
+        <p className="stat-pie agente">{servidores?.length ? 'Agente sin conectar todavía' : 'Agente sin instalar'}</p>
       </article>
     )
   }
@@ -61,9 +67,9 @@ function UltimoEscaneo({ fecha }: UltimoEscaneoProps) {
         {cantidad}
         <span className="stat-unidad">{unidad}</span>
       </p>
-      <p className="stat-pie agente is-activo">
+      <p className={conectado ? 'stat-pie agente is-activo' : 'stat-pie agente'}>
         <span>
-          Agente activo · <time dateTime={fecha.toISOString()}>{cuando(fecha, ahora)}</time>
+          {conectado ? 'Agente activo' : 'Agente desconectado'} · <time dateTime={fecha.toISOString()}>{cuando(fecha, ahora)}</time>
         </span>
       </p>
     </article>

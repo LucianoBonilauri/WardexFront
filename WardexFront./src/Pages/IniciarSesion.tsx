@@ -1,13 +1,34 @@
-import { useState } from 'react'
+import { useState, type SubmitEvent } from 'react'
+import { mensajeDeError } from '../api/cliente.ts'
+import { iniciarSesion } from '../api/cuenta.ts'
 import Header, { type Pagina } from '../Components/header.tsx'
+import type { Cuenta } from '../tipos.ts'
 import './cuenta.css'
 
 type IniciarSesionProps = {
   onCambiarPagina: (pagina: Pagina) => void
+  onEntrar: (cuenta: Cuenta) => void
 }
 
-function IniciarSesion({ onCambiarPagina }: IniciarSesionProps) {
+function IniciarSesion({ onCambiarPagina, onEntrar }: IniciarSesionProps) {
+  const [correo, setCorreo] = useState('')
+  const [contrasena, setContrasena] = useState('')
   const [mostrarContrasena, setMostrarContrasena] = useState(false)
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState('')
+
+  const entrar = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setEnviando(true)
+    setError('')
+
+    try {
+      onEntrar(await iniciarSesion(correo, contrasena))
+    } catch (err) {
+      setError(mensajeDeError(err))
+      setEnviando(false)
+    }
+  }
 
   return (
     <div className="cuenta-page">
@@ -18,8 +39,7 @@ function IniciarSesion({ onCambiarPagina }: IniciarSesionProps) {
           <h1 id="iniciar-sesion-title">Iniciar sesión</h1>
           <p className="cuenta-lead">Entrá para ver los escaneos de tus servidores.</p>
 
-          {/* TODO: cuando exista el backend, acá se validan el correo y la contraseña */}
-          <form className="cuenta-form" onSubmit={(event) => event.preventDefault()}>
+          <form className="cuenta-form" onSubmit={entrar}>
             <input
               className="cuenta-input"
               type="email"
@@ -27,6 +47,9 @@ function IniciarSesion({ onCambiarPagina }: IniciarSesionProps) {
               placeholder="Correo electrónico"
               aria-label="Correo electrónico"
               autoComplete="email"
+              required
+              value={correo}
+              onChange={(event) => setCorreo(event.target.value)}
             />
 
             <div className="cuenta-password">
@@ -37,6 +60,9 @@ function IniciarSesion({ onCambiarPagina }: IniciarSesionProps) {
                 placeholder="Contraseña"
                 aria-label="Contraseña"
                 autoComplete="current-password"
+                required
+                value={contrasena}
+                onChange={(event) => setContrasena(event.target.value)}
               />
               <button
                 type="button"
@@ -62,7 +88,11 @@ function IniciarSesion({ onCambiarPagina }: IniciarSesionProps) {
               </button>
             </div>
 
-            <button type="submit" className="cuenta-submit">Iniciar sesión</button>
+            {error && <p className="cuenta-error" role="alert">{error}</p>}
+
+            <button type="submit" className="cuenta-submit" disabled={enviando}>
+              {enviando ? 'Ingresando…' : 'Iniciar sesión'}
+            </button>
           </form>
 
           <p className="cuenta-footer">

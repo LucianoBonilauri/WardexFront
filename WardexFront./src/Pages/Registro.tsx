@@ -1,13 +1,36 @@
-import { useState } from 'react'
+import { useState, type SubmitEvent } from 'react'
+import { mensajeDeError } from '../api/cliente.ts'
+import { registrarse } from '../api/cuenta.ts'
 import Header, { type Pagina } from '../Components/header.tsx'
+import type { Cuenta } from '../tipos.ts'
 import './cuenta.css'
 
 type RegistroProps = {
   onCambiarPagina: (pagina: Pagina) => void
+  onEntrar: (cuenta: Cuenta) => void
 }
 
-function Registro({ onCambiarPagina }: RegistroProps) {
+function Registro({ onCambiarPagina, onEntrar }: RegistroProps) {
+  const [correo, setCorreo] = useState('')
+  const [contrasena, setContrasena] = useState('')
+  const [nombreUsuario, setNombreUsuario] = useState('')
+  const [telefono, setTelefono] = useState('')
   const [mostrarContrasena, setMostrarContrasena] = useState(false)
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState('')
+
+  const crearCuenta = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setEnviando(true)
+    setError('')
+
+    try {
+      onEntrar(await registrarse({ correo, contrasena, nombreUsuario, telefono }))
+    } catch (err) {
+      setError(mensajeDeError(err))
+      setEnviando(false)
+    }
+  }
 
   return (
     <div className="cuenta-page">
@@ -18,8 +41,7 @@ function Registro({ onCambiarPagina }: RegistroProps) {
           <h1 id="registro-title">Registrarse</h1>
           <p className="cuenta-lead">Para empezar a usar WardeX, Creá una cuenta y escaneá tu primer servidor.</p>
 
-          {/* TODO: cuando exista el backend, acá se mandan los datos de la cuenta */}
-          <form className="cuenta-form" onSubmit={(event) => event.preventDefault()}>
+          <form className="cuenta-form" onSubmit={crearCuenta}>
             <input
               className="cuenta-input"
               type="email"
@@ -27,6 +49,9 @@ function Registro({ onCambiarPagina }: RegistroProps) {
               placeholder="Correo electrónico"
               aria-label="Correo electrónico"
               autoComplete="email"
+              required
+              value={correo}
+              onChange={(event) => setCorreo(event.target.value)}
             />
 
             <div className="cuenta-password">
@@ -37,6 +62,10 @@ function Registro({ onCambiarPagina }: RegistroProps) {
                 placeholder="Contraseña"
                 aria-label="Contraseña"
                 autoComplete="new-password"
+                required
+                minLength={12}
+                value={contrasena}
+                onChange={(event) => setContrasena(event.target.value)}
               />
               <button
                 type="button"
@@ -65,13 +94,32 @@ function Registro({ onCambiarPagina }: RegistroProps) {
             <input
               className="cuenta-input"
               type="text"
-              name="empresa"
-              placeholder="Nombre de la empresa"
-              aria-label="Nombre de la empresa"
-              autoComplete="organization"
+              name="nombreUsuario"
+              placeholder="Nombre de usuario"
+              aria-label="Nombre de usuario"
+              autoComplete="username"
+              required
+              value={nombreUsuario}
+              onChange={(event) => setNombreUsuario(event.target.value)}
             />
 
-            <button type="submit" className="cuenta-submit">Crear cuenta</button>
+            <input
+              className="cuenta-input"
+              type="tel"
+              name="telefono"
+              placeholder="Número de teléfono"
+              aria-label="Número de teléfono"
+              autoComplete="tel"
+              required
+              value={telefono}
+              onChange={(event) => setTelefono(event.target.value)}
+            />
+
+            {error && <p className="cuenta-error" role="alert">{error}</p>}
+
+            <button type="submit" className="cuenta-submit" disabled={enviando}>
+              {enviando ? 'Creando cuenta…' : 'Crear cuenta'}
+            </button>
           </form>
 
           <p className="cuenta-footer">

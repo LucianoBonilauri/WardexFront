@@ -1,44 +1,68 @@
-import { useState } from 'react'
-import type { Alerta } from '../Components/Dashboard/Alert.tsx'
+import { useEffect, useState } from 'react'
+import { obtenerAlertas } from '../api/notificaciones.ts'
+import { obtenerServidores } from '../api/servidores.ts'
 import CantAlerts from '../Components/Dashboard/CantAlerts.tsx'
 import ListaAlertas from '../Components/Dashboard/ListaAlertas.tsx'
 import NiveldeSeguridad from '../Components/Dashboard/NiveldeSeguridad.tsx'
 import UltimoEscaneo from '../Components/Dashboard/UltimoEscaneo.tsx'
 import Header, { type Pagina } from '../Components/header.tsx'
-import NombreEmpresa from '../Components/NombreEmpresa.tsx'
+import NombreUsuario from '../Components/NombreUsuario.tsx'
+import type { Alerta, Servidor } from '../tipos.ts'
 import './Dashboard.css'
-
-// Lo que trae un escaneo de la base de datos. Cada card y la lista de alertas usan solo su parte
-type DatosEscaneo = {
-  nivelSeguridad: number
-  alertas: Alerta[]
-  fecha: Date
-}
 
 type DashboardProps = {
   onCambiarPagina: (pagina: Pagina) => void
-  nombreEmpresa?: string
+  nombreUsuario?: string
+  conSesion: boolean
 }
 
-function Dashboard({ onCambiarPagina, nombreEmpresa }: DashboardProps) {
-  // null = todavía no hay escaneo, y las cards se muestran vacías.
-  // TODO: cuando exista el backend, sumar setEscaneo y guardar acá el último escaneo; las cards y la lista se llenan solas
-  const [escaneo] = useState<DatosEscaneo | null>(null)
+function Dashboard({ onCambiarPagina, nombreUsuario, conSesion }: DashboardProps) {
+  // null = todavía no llegaron (o no hay sesión), y las cards se muestran vacías
+  const [alertas, setAlertas] = useState<Alerta[] | null>(null)
+  const [servidores, setServidores] = useState<Servidor[] | null>(null)
+
+  // Con sesión, al entrar se piden las alertas y los servidores (las dos cosas a la vez)
+  useEffect(() => {
+    if (!conSesion) return
+    let sigueAbierta = true
+
+    // TODO: falta definir cómo se muestra un error de conexión en el Dashboard
+    obtenerAlertas()
+      .then((datos) => {
+        if (sigueAbierta) setAlertas(datos)
+      })
+      .catch((error) => console.error('No se pudieron traer las alertas:', error))
+
+    obtenerServidores()
+      .then((datos) => {
+        if (sigueAbierta) setServidores(datos)
+      })
+      .catch((error) => console.error('No se pudieron traer los servidores:', error))
+
+    // Si se cambia de pantalla antes de que lleguen las respuestas, no se guardan
+    return () => {
+      sigueAbierta = false
+    }
+  }, [conSesion])
+
+  // Sin alertas y sin ningún servidor, la lista invita a instalar el agente en vez de decir "no se encontraron alertas"
+  const sinAgente = alertas?.length === 0 && servidores?.length === 0
 
   return (
     <div className="dashboard-page">
       <Header paginaActual="dashboard" onCambiarPagina={onCambiarPagina} />
 
       <main className="dashboard">
-        <NombreEmpresa nombre={nombreEmpresa} />
+        <NombreUsuario nombre={nombreUsuario} />
 
-        <section className="stat-grid" aria-label="Estadísticas del último escaneo">
-          <NiveldeSeguridad nivel={escaneo?.nivelSeguridad} />
-          <CantAlerts alertas={escaneo?.alertas} />
-          <UltimoEscaneo fecha={escaneo?.fecha} />
+        <section className="stat-grid" aria-label="Estadísticas de tus servidores">
+          {/* TODO: la API todavía no manda un nivel de seguridad, así que esta card queda vacía */}
+          <NiveldeSeguridad />
+          <CantAlerts alertas={alertas ?? undefined} />
+          <UltimoEscaneo servidores={servidores ?? undefined} />
         </section>
 
-        <ListaAlertas alertas={escaneo?.alertas} onInstalar={() => onCambiarPagina('credenciales')} />
+        <ListaAlertas alertas={sinAgente ? undefined : alertas ?? undefined} onInstalar={() => onCambiarPagina('credenciales')} />
       </main>
     </div>
   )

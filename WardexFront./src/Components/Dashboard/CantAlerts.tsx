@@ -1,4 +1,4 @@
-import type { Alerta } from './Alert.tsx'
+import type { Alerta } from '../../tipos.ts'
 import './CantAlerts.css'
 
 // Orden en el que aparecen en la barra y en la leyenda
@@ -6,6 +6,7 @@ const TIPOS = [
   { gravedad: 'critica', singular: 'crítica', plural: 'críticas' },
   { gravedad: 'alta', singular: 'alta', plural: 'altas' },
   { gravedad: 'media', singular: 'media', plural: 'medias' },
+  { gravedad: 'baja', singular: 'baja', plural: 'bajas' },
 ] as const
 
 type CantAlertsProps = {

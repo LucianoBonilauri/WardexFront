@@ -1,17 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode, type SubmitEvent } from 'react'
 import AvisoSesion from '../Components/AvisoSesion.tsx'
 import Header, { type Pagina } from '../Components/header.tsx'
+import type { Cuenta } from '../tipos.ts'
 import './Perfil.css'
 
-// La cuenta que inició sesión, como llega de la base de datos. La contraseña no viene: la base nunca la devuelve
-export type Cuenta = {
-  empresa: string
-  correo: string
-}
+type NombreCampo = 'nombreUsuario' | 'correo' | 'telefono' | 'contrasena'
 
-type NombreCampo = 'empresa' | 'correo' | 'contrasena'
-
-// "Distribuidora Norte S.A." → "DN"
+// "Juan Pérez" → "JP"
 function iniciales(nombre: string): string {
   return nombre
     .split(/\s+/)
@@ -83,22 +78,26 @@ function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable,
 type PerfilProps = {
   // null = nadie inició sesión, y la pantalla se muestra vacía
   cuenta: Cuenta | null
-  onGuardar: (cuenta: Cuenta) => void
   onCambiarPagina: (pagina: Pagina) => void
 }
 
-function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
-  const [empresa, setEmpresa] = useState(cuenta?.empresa ?? '')
+function Perfil({ cuenta, onCambiarPagina }: PerfilProps) {
+  const [nombreUsuario, setNombreUsuario] = useState(cuenta?.nombreUsuario ?? '')
   const [correo, setCorreo] = useState(cuenta?.correo ?? '')
+  const [telefono, setTelefono] = useState(cuenta?.telefono ?? '')
   // Solo la contraseña nueva, si la escribe
   const [contrasena, setContrasena] = useState('')
   const [editando, setEditando] = useState<NombreCampo | null>(null)
   const [verContrasena, setVerContrasena] = useState(false)
+  const [error, setError] = useState('')
 
-  const sinCuenta = cuenta === null
-  const hayCambios = !sinCuenta && (empresa !== cuenta.empresa || correo !== cuenta.correo || contrasena !== '')
-  const puedeGuardar = hayCambios && empresa.trim() !== '' && correo.trim() !== ''
-  const inicialesEmpresa = cuenta ? iniciales(cuenta.empresa) : ''
+  const sinCuenta = !cuenta
+  const hayCambios =
+    !sinCuenta &&
+    (nombreUsuario !== cuenta.nombreUsuario || correo !== cuenta.correo || telefono !== cuenta.telefono || contrasena !== '')
+  // El teléfono puede quedar vacío; el nombre de usuario y el correo no
+  const puedeGuardar = hayCambios && nombreUsuario.trim() !== '' && correo.trim() !== ''
+  const inicialesUsuario = cuenta ? iniciales(cuenta.nombreUsuario) : ''
 
   // Con cuenta y sin escribir una nueva, se muestran puntitos de ejemplo (no es la contraseña real)
   const contrasenaDeEjemplo = !sinCuenta && editando !== 'contrasena' && contrasena === ''
@@ -107,13 +106,10 @@ function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
 
   const guardar = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!cuenta || !puedeGuardar) return
+    if (!puedeGuardar) return
 
-    // TODO: cuando exista el backend, mandar los cambios a la API (con la contraseña nueva, si la escribió) y guardar lo que devuelva
-    onGuardar({ ...cuenta, empresa, correo })
-    setContrasena('')
-    setVerContrasena(false)
-    setEditando(null)
+    // TODO: la API todavía no tiene una ruta para editar la cuenta. Cuando la tenga, mandar acá solo los campos que cambiaron
+    setError('Por ahora no se pueden guardar cambios en la cuenta.')
   }
 
   return (
@@ -133,8 +129,8 @@ function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
           </div>
 
           <div className={cuenta ? 'perfil-avatar' : 'perfil-avatar es-vacio'}>
-            {inicialesEmpresa ? (
-              <span className="perfil-iniciales">{inicialesEmpresa}</span>
+            {inicialesUsuario ? (
+              <span className="perfil-iniciales">{inicialesUsuario}</span>
             ) : (
               <svg className="perfil-avatar-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <circle cx="12" cy="8" r="5" />
@@ -155,17 +151,17 @@ function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
 
           <div className="perfil-campos">
             <Campo
-              id="perfil-empresa"
-              etiqueta="Empresa"
+              id="perfil-nombre-usuario"
+              etiqueta="Nombre de usuario"
               tipo="text"
-              valor={empresa}
-              placeholder="Agregá el nombre de tu empresa"
-              autoComplete="organization"
-              editable={editando === 'empresa'}
+              valor={nombreUsuario}
+              placeholder="Agregá tu nombre de usuario"
+              autoComplete="username"
+              editable={editando === 'nombreUsuario'}
               deshabilitado={sinCuenta}
               corto
-              onCambiar={setEmpresa}
-              onEditar={() => setEditando('empresa')}
+              onCambiar={setNombreUsuario}
+              onEditar={() => setEditando('nombreUsuario')}
             />
 
             <Campo
@@ -179,6 +175,20 @@ function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
               deshabilitado={sinCuenta}
               onCambiar={setCorreo}
               onEditar={() => setEditando('correo')}
+            />
+
+            <Campo
+              id="perfil-telefono"
+              etiqueta="Número de teléfono"
+              tipo="tel"
+              valor={telefono}
+              placeholder="Agregá tu número de teléfono"
+              autoComplete="tel"
+              editable={editando === 'telefono'}
+              deshabilitado={sinCuenta}
+              corto
+              onCambiar={setTelefono}
+              onEditar={() => setEditando('telefono')}
             />
 
             <Campo
@@ -221,9 +231,12 @@ function Perfil({ cuenta, onGuardar, onCambiarPagina }: PerfilProps) {
             </Campo>
           </div>
 
-          <button type="submit" className="perfil-guardar" disabled={!puedeGuardar}>
-            Guardar cambios
-          </button>
+          <div className="perfil-acciones">
+            {error && <p className="perfil-error" role="alert">{error}</p>}
+            <button type="submit" className="perfil-guardar" disabled={!puedeGuardar}>
+              Guardar cambios
+            </button>
+          </div>
         </form>
       </main>
     </div>

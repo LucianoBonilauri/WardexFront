@@ -165,7 +165,7 @@
   cursor: default;
 }
 
-/* Foto: las iniciales de la empresa, o el ícono de usuario si no hay cuenta */
+/* Foto: las iniciales del nombre de usuario, o el ícono de usuario si no hay cuenta */
 .perfil-avatar {
   position: relative;
   display: grid;
@@ -215,13 +215,27 @@
   color: #e9e9ed;
 }
 
+/* Guardar cambios centrado abajo, con el error de la API arriba si lo hay */
+.perfil-acciones {
+  display: flex;
+  grid-area: guardar;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vh;
+  margin-top: 8vh;
+}
+
+.perfil-error {
+  margin: 0;
+  color: #e16666;
+  font-size: clamp(0.9rem, min(1.2vw, 1.95vh), 1.3rem);
+  text-align: center;
+}
+
 /* Gris apagado mientras no haya nada para guardar */
 .perfil-guardar {
-  grid-area: guardar;
-  justify-self: center;
   min-width: 21vw;
   min-height: 6.7vh;
-  margin-top: 8vh;
   padding: 0 3vw;
   border: 0.15vh solid var(--violet);
   border-radius: 6.7vh;
@@ -294,8 +308,11 @@
     flex: 1;
   }
 
+  .perfil-acciones {
+    margin-top: 6vh;
+  }
+
   .perfil-guardar {
     min-width: 80vw;
-    margin-top: 6vh;
   }
 }

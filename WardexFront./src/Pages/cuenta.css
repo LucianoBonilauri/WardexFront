@@ -11,7 +11,7 @@
   display: grid;
   flex: 1;
   place-items: center;
-  padding: 4vh 4vw;
+  padding: 3vh 4vw;
 }
 
 /* Mismo estilo que la ventana de la guía de instalación */
@@ -121,6 +121,22 @@
   border-radius: 1vh;
   color: var(--violet);
   font-size: clamp(1.1rem, min(1.4vw, 2.7vh), 1.8rem);
+}
+
+/* Mientras espera la respuesta de la API */
+.cuenta-submit:disabled {
+  opacity: 0.6;
+  transform: none;
+  cursor: default;
+}
+
+/* El error que devuelve la API (contraseña incorrecta, correo ya registrado, sin conexión...) */
+.cuenta-error {
+  margin: 0;
+  color: #e16666;
+  font-size: clamp(0.9rem, min(1vw, 1.95vh), 1.3rem);
+  line-height: 1.4;
+  text-align: center;
 }
 
 .cuenta-footer {

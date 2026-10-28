@@ -1,4 +1,6 @@
-import { useRef } from 'react'
+import { useRef, useState, type SubmitEvent } from 'react'
+import { mensajeDeError } from '../api/cliente.ts'
+import { crearServidor } from '../api/servidores.ts'
 import Header, { type Pagina } from '../Components/header.tsx'
 import './credenciales.css'
 
@@ -8,6 +10,37 @@ type CredencialesProps = {
 
 function Credenciales({ onCambiarPagina }: CredencialesProps) {
   const guiaRef = useRef<HTMLDialogElement>(null)
+  const [nombreServidor, setNombreServidor] = useState('')
+  // La API key para el agente. Solo vive en esta pantalla: la API la muestra una sola vez y no se guarda en ningún lado
+  const [apiKey, setApiKey] = useState<string | null>(null)
+  const [generando, setGenerando] = useState(false)
+  const [copiado, setCopiado] = useState(false)
+  const [error, setError] = useState('')
+
+  const generar = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setGenerando(true)
+    setError('')
+    try {
+      setApiKey(await crearServidor(nombreServidor.trim()))
+      setCopiado(false)
+      setNombreServidor('')
+    } catch (err) {
+      setError(mensajeDeError(err))
+    } finally {
+      setGenerando(false)
+    }
+  }
+
+  const copiar = async () => {
+    if (!apiKey) return
+    try {
+      await navigator.clipboard.writeText(apiKey)
+      setCopiado(true)
+    } catch {
+      setError('No se pudo copiar. Seleccioná la API key y copiala a mano.')
+    }
+  }
 
   return (
     <div className="credenciales-page">
@@ -18,14 +51,33 @@ function Credenciales({ onCambiarPagina }: CredencialesProps) {
         <h1 id="credenciales-title">Instalación</h1>
 
         <div className="credencial-panel">
-          <button type="button" className="generar-button">Generar credencial</button>
+          {/* Cada API key es de un servidor: el backend pide un nombre para crearlo */}
+          <form className="servidor-form" onSubmit={generar}>
+            <input
+              className="servidor-input"
+              type="text"
+              name="nombreServidor"
+              placeholder="Nombre del servidor"
+              aria-label="Nombre del servidor"
+              required
+              maxLength={100}
+              value={nombreServidor}
+              onChange={(event) => setNombreServidor(event.target.value)}
+            />
+            <button type="submit" className="generar-button" disabled={generando}>
+              {generando ? 'Generando…' : 'Generar credencial'}
+            </button>
+          </form>
 
           <div className="credencial-box">
-            <p className="credencial-code">000-000</p>
-            <button type="button" className="copiar-button" aria-label="Copiar credencial">
-              Copiar
+            <p className={apiKey ? 'credencial-code es-key' : 'credencial-code'}>{apiKey ?? '000-000'}</p>
+            <button type="button" className="copiar-button" aria-label="Copiar API key" disabled={!apiKey} onClick={copiar}>
+              {copiado ? 'Copiado' : 'Copiar'}
             </button>
           </div>
+
+          {apiKey && <p className="credencial-aviso">Guardá esta API key ahora: no se vuelve a mostrar.</p>}
+          {error && <p className="credencial-error" role="alert">{error}</p>}
         </div>
 
         <button type="button" className="guia-button" onClick={() => guiaRef.current?.showModal()}>

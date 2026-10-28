@@ -1,18 +1,11 @@
+import type { Alerta, Gravedad } from '../../tipos.ts'
 import './Alert.css'
-
-export type Gravedad = 'critica' | 'alta' | 'media'
-
-// Una alerta tal como llega de la base de datos
-export type Alerta = {
-  id: number
-  titulo: string
-  gravedad: Gravedad
-}
 
 const ETIQUETA: Record<Gravedad, string> = {
   critica: 'Crítico',
   alta: 'Alto',
   media: 'Medio',
+  baja: 'Bajo',
 }
 
 type AlertProps = {

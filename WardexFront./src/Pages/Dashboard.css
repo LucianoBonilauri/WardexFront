@@ -24,6 +24,10 @@
   --color-gravedad: #d3bd6c;
 }
 
+.gravedad-baja {
+  --color-gravedad: #7f9cc9;
+}
+
 /* Las tres cards de estadísticas: una al lado de la otra y todas del mismo alto */
 .stat-grid {
   display: grid;

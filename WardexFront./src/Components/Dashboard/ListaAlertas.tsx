@@ -1,8 +1,10 @@
-import Alert, { type Alerta, type Gravedad } from './Alert.tsx'
+import type { Alerta, Gravedad } from '../../tipos.ts'
+import Alert from './Alert.tsx'
 import './ListaAlertas.css'
 
-// Primero las críticas, después las altas y al final las medias
-const ORDEN: Record<Gravedad, number> = { critica: 0, alta: 1, media: 2 }
+// Primero las críticas, después las altas, las medias y al final las bajas.
+// Dentro de cada gravedad quedan como las manda la API: de la más nueva a la más vieja
+const ORDEN: Record<Gravedad, number> = { critica: 0, alta: 1, media: 2, baja: 3 }
 
 type ListaAlertasProps = {
   // Las alertas del último escaneo. Sin escaneo no llegan y se muestra el aviso para instalar el agente
