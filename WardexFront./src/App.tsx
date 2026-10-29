@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { alVencerLaSesion } from './api/cliente.ts'
-import { cuentaGuardada } from './api/cuenta.ts'
+import { cerrarSesion, cuentaGuardada } from './api/cuenta.ts'
 import type { Pagina } from './Components/header.tsx'
 import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
@@ -32,11 +32,15 @@ function App() {
   // La cuenta que inició sesión; la comparten Perfil y Dashboard. null = nadie inició sesión.
   // Al abrir o recargar la app se recupera la que quedó guardada en el navegador, si el token todavía vale
   const [cuenta, setCuenta] = useState<Cuenta | null>(cuentaGuardada)
+  // La contraseña con la que se entró, para que el ojito de Perfil la pueda mostrar.
+  // Vive solo en la memoria de esta pestaña: nunca se guarda en el navegador y se pierde al recargar
+  const [contrasenaSesion, setContrasenaSesion] = useState<string | null>(null)
 
   // El token dura 1 hora: cuando la API avisa que venció, se cierra la sesión y se vuelve al login
   useEffect(() => {
     alVencerLaSesion(() => {
       setCuenta(null)
+      setContrasenaSesion(null)
       window.history.pushState(null, '', RUTAS.iniciarSesion)
       setPagina('iniciarSesion')
     })
@@ -60,9 +64,18 @@ function App() {
   }
 
   // Después de iniciar sesión o registrarse
-  const entrar = (nueva: Cuenta) => {
+  const entrar = (nueva: Cuenta, contrasena: string) => {
     setCuenta(nueva)
+    setContrasenaSesion(contrasena)
     cambiarPagina('dashboard')
+  }
+
+  // Botón Cerrar sesión de Perfil
+  const salir = () => {
+    cerrarSesion()
+    setCuenta(null)
+    setContrasenaSesion(null)
+    cambiarPagina('inicio')
   }
 
   if (pagina === 'credenciales') {
@@ -84,7 +97,7 @@ function App() {
 
   if (pagina === 'perfil') {
     // La key hace que Perfil arranque de nuevo si cambia la sesión, para que los campos se llenen con los datos que corresponden
-    return <Perfil key={cuenta?.correo ?? 'sin-cuenta'} onCambiarPagina={cambiarPagina} cuenta={cuenta} />
+    return <Perfil key={cuenta?.correo ?? 'sin-cuenta'} onCambiarPagina={cambiarPagina} cuenta={cuenta} contrasenaActual={contrasenaSesion} onCerrarSesion={salir} />
   }
 
   return <Inicio onCambiarPagina={cambiarPagina} />

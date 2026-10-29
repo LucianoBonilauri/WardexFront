@@ -79,9 +79,12 @@ type PerfilProps = {
   // null = nadie inició sesión, y la pantalla se muestra vacía
   cuenta: Cuenta | null
   onCambiarPagina: (pagina: Pagina) => void
+  // La contraseña con la que se entró en esta pestaña. null después de recargar: la API nunca la devuelve
+  contrasenaActual: string | null
+  onCerrarSesion: () => void
 }
 
-function Perfil({ cuenta, onCambiarPagina }: PerfilProps) {
+function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: PerfilProps) {
   const [nombreUsuario, setNombreUsuario] = useState(cuenta?.nombreUsuario ?? '')
   const [correo, setCorreo] = useState(cuenta?.correo ?? '')
   const [telefono, setTelefono] = useState(cuenta?.telefono ?? '')
@@ -99,8 +102,10 @@ function Perfil({ cuenta, onCambiarPagina }: PerfilProps) {
   const puedeGuardar = hayCambios && nombreUsuario.trim() !== '' && correo.trim() !== ''
   const inicialesUsuario = cuenta ? iniciales(cuenta.nombreUsuario) : ''
 
-  // Con cuenta y sin escribir una nueva, se muestran puntitos de ejemplo (no es la contraseña real)
-  const contrasenaDeEjemplo = !sinCuenta && editando !== 'contrasena' && contrasena === ''
+  // El campo muestra la contraseña nueva si se está escribiendo una; si no, la actual (si se conoce)
+  const valorContrasena = editando === 'contrasena' || contrasena !== '' ? contrasena : (contrasenaActual ?? '')
+  // Si no se conoce ninguna (por ejemplo, después de recargar), se muestran puntitos de ejemplo
+  const contrasenaDeEjemplo = !sinCuenta && editando !== 'contrasena' && valorContrasena === ''
   let placeholderContrasena = 'Creá una contraseña'
   if (!sinCuenta) placeholderContrasena = editando === 'contrasena' ? 'Escribí la contraseña nueva' : '••••••••••••'
 
@@ -195,7 +200,7 @@ function Perfil({ cuenta, onCambiarPagina }: PerfilProps) {
               id="perfil-contrasena"
               etiqueta="Contraseña"
               tipo={verContrasena ? 'text' : 'password'}
-              valor={contrasena}
+              valor={valorContrasena}
               placeholder={placeholderContrasena}
               autoComplete="new-password"
               editable={editando === 'contrasena'}
@@ -204,12 +209,12 @@ function Perfil({ cuenta, onCambiarPagina }: PerfilProps) {
               onCambiar={setContrasena}
               onEditar={() => setEditando('contrasena')}
             >
-              {/* Solo se puede mirar la contraseña nueva que se está escribiendo */}
+              {/* Muestra lo que haya en el campo: la contraseña actual o la nueva que se está escribiendo */}
               <button
                 type="button"
                 className="perfil-ojo"
                 aria-label={verContrasena ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                disabled={contrasena === ''}
+                disabled={valorContrasena === ''}
                 onClick={() => setVerContrasena(!verContrasena)}
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -236,6 +241,17 @@ function Perfil({ cuenta, onCambiarPagina }: PerfilProps) {
             <button type="submit" className="perfil-guardar" disabled={!puedeGuardar}>
               Guardar cambios
             </button>
+
+            {cuenta && (
+              <button type="button" className="perfil-cerrar" onClick={onCerrarSesion}>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <path d="m16 17 5-5-5-5" />
+                  <path d="M21 12H9" />
+                </svg>
+                Cerrar sesión
+              </button>
+            )}
           </div>
         </form>
       </main>

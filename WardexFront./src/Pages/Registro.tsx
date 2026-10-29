@@ -7,7 +7,7 @@ import './cuenta.css'
 
 type RegistroProps = {
   onCambiarPagina: (pagina: Pagina) => void
-  onEntrar: (cuenta: Cuenta) => void
+  onEntrar: (cuenta: Cuenta, contrasena: string) => void
 }
 
 function Registro({ onCambiarPagina, onEntrar }: RegistroProps) {
@@ -25,7 +25,7 @@ function Registro({ onCambiarPagina, onEntrar }: RegistroProps) {
     setError('')
 
     try {
-      onEntrar(await registrarse({ correo, contrasena, nombreUsuario, telefono }))
+      onEntrar(await registrarse({ correo, contrasena, nombreUsuario, telefono }), contrasena)
     } catch (err) {
       setError(mensajeDeError(err))
       setEnviando(false)

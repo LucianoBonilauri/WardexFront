@@ -7,7 +7,7 @@ import './cuenta.css'
 
 type IniciarSesionProps = {
   onCambiarPagina: (pagina: Pagina) => void
-  onEntrar: (cuenta: Cuenta) => void
+  onEntrar: (cuenta: Cuenta, contrasena: string) => void
 }
 
 function IniciarSesion({ onCambiarPagina, onEntrar }: IniciarSesionProps) {
@@ -23,7 +23,7 @@ function IniciarSesion({ onCambiarPagina, onEntrar }: IniciarSesionProps) {
     setError('')
 
     try {
-      onEntrar(await iniciarSesion(correo, contrasena))
+      onEntrar(await iniciarSesion(correo, contrasena), contrasena)
     } catch (err) {
       setError(mensajeDeError(err))
       setEnviando(false)

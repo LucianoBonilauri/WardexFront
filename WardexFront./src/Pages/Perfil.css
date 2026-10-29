@@ -249,14 +249,41 @@
   cursor: default;
 }
 
+/* En rojo suave para que no se confunda con Guardar cambios */
+.perfil-cerrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 1vw;
+  min-height: 6vh;
+  margin-top: 1vh;
+  padding: 0 1.7vw;
+  border: 0.15vh solid color-mix(in srgb, #f47a79 40%, transparent);
+  border-radius: 6vh;
+  color: #f47a79;
+  font-size: clamp(0.9rem, min(1.2vw, 2vh), 1.3rem);
+  font-weight: 600;
+}
+
+.perfil-cerrar svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .perfil-lapiz,
 .perfil-camara,
-.perfil-guardar {
+.perfil-guardar,
+.perfil-cerrar {
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .perfil-lapiz:not(:disabled):hover,
 .perfil-camara:hover,
+.perfil-cerrar:hover,
 .perfil-guardar:not(:disabled):hover {
   opacity: 0.78;
   transform: translateY(-0.2vh);
