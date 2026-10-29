@@ -36,12 +36,6 @@
   font-size: clamp(1rem, min(1.35vw, 2.2vh), 1.5rem);
 }
 
-/* Dónde va el aviso de sesión en esta pantalla; el aviso en sí está en Components/AvisoSesion.css */
-.perfil-encabezado .aviso-sesion {
-  width: var(--ancho-campos);
-  margin-top: 2vh;
-}
-
 .perfil-lapiz svg,
 .perfil-camara svg,
 .perfil-ojo svg {
@@ -161,11 +155,7 @@
   height: 40%;
 }
 
-.perfil-lapiz:disabled {
-  cursor: default;
-}
-
-/* Foto: las iniciales del nombre de usuario, o el ícono de usuario si no hay cuenta */
+/* Foto: las iniciales del nombre de usuario, o el ícono de usuario si no se conoce el nombre */
 .perfil-avatar {
   position: relative;
   display: grid;
@@ -179,11 +169,6 @@
   border: 0.15vh solid #4a4573;
   border-radius: 4.4vh;
   background: linear-gradient(160deg, #302f4f, #1c1c2c);
-}
-
-.perfil-avatar.es-vacio {
-  border: 0.15vh dashed #4a4b56;
-  background: #1b1c28;
 }
 
 .perfil-iniciales {
@@ -281,7 +266,7 @@
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
-.perfil-lapiz:not(:disabled):hover,
+.perfil-lapiz:hover,
 .perfil-camara:hover,
 .perfil-cerrar:hover,
 .perfil-guardar:not(:disabled):hover {

@@ -1,8 +1,8 @@
 import { useState, type SubmitEvent } from 'react'
-import { mensajeDeError } from '../api/cliente.ts'
-import { registrarse } from '../api/cuenta.ts'
-import Header, { type Pagina } from '../Components/header.tsx'
-import type { Cuenta } from '../tipos.ts'
+import { mensajeDeError } from '../../api/cliente.ts'
+import { registrarse } from '../../api/cuenta.ts'
+import Header, { type Pagina } from '../../Components/header.tsx'
+import type { Cuenta } from '../../tipos.ts'
 import './cuenta.css'
 
 type RegistroProps = {

@@ -1,0 +1,276 @@
+/* Texto a la izquierda y la tarjeta de adorno a la derecha, centrados en el alto que queda debajo del header */
+.sin-sesion {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 41.5vw;
+  align-items: center;
+  column-gap: 4vw;
+  padding: 6vh 4vw 8vh;
+}
+
+/* Los tamaños de letra usan min(vw, vh) para que siempre entren en pantalla, aunque sea ancha y baja */
+.sin-sesion h1 {
+  margin: 0;
+  color: #ececf0;
+  font-size: clamp(2.6rem, min(5vw, 8vh), 5.4rem);
+  font-weight: 500;
+  line-height: 1.06;
+}
+
+.sin-sesion h1 span {
+  display: block;
+  color: #7d7e88;
+}
+
+.sin-sesion-bajada {
+  max-width: 38vw;
+  margin: 3.5vh 0 0;
+  color: #b1b2b9;
+  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
+  line-height: 1.6;
+}
+
+.sin-sesion-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.15vw;
+  margin-top: 4.4vh;
+}
+
+.sin-sesion-botones button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8vw;
+  min-height: 6.5vh;
+  padding: 0 2vw;
+  border-radius: 1.2vh;
+  font-size: clamp(1rem, min(1.4vw, 2.3vh), 1.5rem);
+  font-weight: 600;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.sin-sesion-botones button:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+.sin-sesion-crear {
+  border: 0.15vh solid var(--violet);
+  color: var(--violet);
+}
+
+.sin-sesion-crear svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 180ms ease;
+}
+
+.sin-sesion-crear:hover svg {
+  transform: translateX(0.3vw);
+}
+
+.sin-sesion-iniciar {
+  border: 0.15vh solid #2f313b;
+  color: #ececf0;
+}
+
+/* Tarjeta de adorno: un perfil apagado con un candado en el medio */
+.tarjeta-bloqueada {
+  position: relative;
+  padding: 5.7vh 3.5vw;
+  border: 0.15vh solid #595d6c;
+  border-radius: 4vh;
+  background: linear-gradient(180deg, #1b1c29, #12131f);
+  box-shadow: 0 3vh 8vh rgba(0, 0, 0, 0.35);
+}
+
+.tarjeta-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 1.7vw;
+  margin-bottom: 4.9vh;
+}
+
+.tarjeta-avatar {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  height: 11.5vh;
+  aspect-ratio: 1;
+  border: 0.2vh dashed #4a4b56;
+  border-radius: 50%;
+  color: #8d8e97;
+}
+
+.tarjeta-avatar svg,
+.tarjeta-candado-icono svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tarjeta-avatar svg {
+  width: 40%;
+  stroke-width: 1.5;
+}
+
+.tarjeta-lineas {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vh;
+}
+
+/* Barras grises en lugar de texto, como si estuviera cargando */
+.tarjeta-linea {
+  display: block;
+  height: 1.2vh;
+  border-radius: 1vh;
+  background: #23232f;
+}
+
+.tarjeta-linea.es-larga {
+  width: 15.8vw;
+  height: 1.6vh;
+  background: #333440;
+}
+
+.tarjeta-linea.es-corta {
+  width: 9.7vw;
+  background: #292b35;
+}
+
+.tarjeta-linea.es-empresa {
+  width: 13vw;
+}
+
+.tarjeta-linea.es-correo {
+  width: 22vw;
+}
+
+.tarjeta-etiqueta {
+  margin: 0 0 1vh;
+  color: #6f707a;
+  font-size: clamp(0.75rem, min(1vw, 1.8vh), 1.15rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tarjeta-campo {
+  display: flex;
+  align-items: center;
+  height: 6.5vh;
+  margin-bottom: 3.3vh;
+  padding: 0 1.4vw;
+  border: 0.15vh solid #1f2030;
+  border-radius: 1.2vh;
+  background: #12131f;
+}
+
+.tarjeta-campo.es-ultimo {
+  margin-bottom: 0;
+}
+
+.tarjeta-puntos {
+  color: #34353f;
+  font-size: clamp(1rem, min(1.5vw, 2.6vh), 1.6rem);
+  letter-spacing: 0.2em;
+}
+
+/* Candado y "Sesión cerrada", centrados sobre la tarjeta */
+.tarjeta-candado {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.9vh;
+  transform: translate(-50%, -50%);
+}
+
+.tarjeta-candado-icono {
+  display: grid;
+  place-items: center;
+  height: 8.9vh;
+  aspect-ratio: 1;
+  border: 0.15vh solid color-mix(in srgb, var(--violet) 40%, transparent);
+  border-radius: 2.2vh;
+  background: #2b2741;
+  box-shadow: 0 0 0 1vh rgba(145, 133, 217, 0.07);
+  color: var(--violet);
+}
+
+.tarjeta-candado-icono svg {
+  width: 38%;
+  stroke-width: 1.8;
+}
+
+.tarjeta-candado-texto {
+  padding: 1vh 1.4vw;
+  border-radius: 4vh;
+  background: rgba(11, 13, 24, 0.85);
+  color: #d9d4ff;
+  font-size: clamp(0.8rem, min(1.1vw, 1.95vh), 1.2rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 52rem) {
+  .sin-sesion {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6vh;
+    padding: 5vh 6vw 6vh;
+  }
+
+  .sin-sesion-bajada {
+    max-width: none;
+  }
+
+  .sin-sesion-botones {
+    gap: 3vw;
+  }
+
+  .sin-sesion-botones button {
+    gap: 2vw;
+    padding: 0 5vw;
+  }
+
+  .tarjeta-bloqueada {
+    padding: 4vh 6vw;
+  }
+
+  .tarjeta-cabecera {
+    gap: 4vw;
+  }
+
+  .tarjeta-linea.es-larga {
+    width: 40vw;
+  }
+
+  .tarjeta-linea.es-corta {
+    width: 25vw;
+  }
+
+  .tarjeta-linea.es-empresa {
+    width: 35vw;
+  }
+
+  .tarjeta-linea.es-correo {
+    width: 55vw;
+  }
+
+  .tarjeta-campo {
+    padding: 0 4vw;
+  }
+
+  .tarjeta-candado-texto {
+    padding: 1vh 4vw;
+  }
+}

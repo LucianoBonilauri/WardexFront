@@ -3,10 +3,9 @@ import { obtenerAlertas } from '../api/notificaciones.ts'
 import { obtenerServidores } from '../api/servidores.ts'
 import CantAlerts from '../Components/Dashboard/CantAlerts.tsx'
 import ListaAlertas from '../Components/Dashboard/ListaAlertas.tsx'
-import NiveldeSeguridad from '../Components/Dashboard/NiveldeSeguridad.tsx'
 import UltimoEscaneo from '../Components/Dashboard/UltimoEscaneo.tsx'
 import Header, { type Pagina } from '../Components/header.tsx'
-import NombreUsuario from '../Components/NombreUsuario.tsx'
+import NombreUsuario from '../Components/Dashboard/NombreUsuario.tsx'
 import type { Alerta, Servidor } from '../tipos.ts'
 import './Dashboard.css'
 
@@ -55,9 +54,9 @@ function Dashboard({ onCambiarPagina, nombreUsuario, conSesion }: DashboardProps
       <main className="dashboard">
         <NombreUsuario nombre={nombreUsuario} />
 
+        {/* La grilla sigue siendo de tres columnas: la tercera queda libre, como en el diseño.
+            Nivel de seguridad se sacó porque la API no manda ese dato (su componente sigue en Components/Dashboard) */}
         <section className="stat-grid" aria-label="Estadísticas de tus servidores">
-          {/* TODO: la API todavía no manda un nivel de seguridad, así que esta card queda vacía */}
-          <NiveldeSeguridad />
           <CantAlerts alertas={alertas ?? undefined} />
           <UltimoEscaneo servidores={servidores ?? undefined} />
         </section>

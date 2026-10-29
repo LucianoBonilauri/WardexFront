@@ -4,10 +4,10 @@ import { cerrarSesion, cuentaGuardada } from './api/cuenta.ts'
 import type { Pagina } from './Components/header.tsx'
 import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
-import IniciarSesion from './Pages/IniciarSesion.tsx'
+import IniciarSesion from './Pages/ManejoDePerfil/IniciarSesion.tsx'
 import Inicio from './Pages/inicio.tsx'
-import Perfil from './Pages/Perfil.tsx'
-import Registro from './Pages/Registro.tsx'
+import Perfil from './Pages/ManejoDePerfil/Perfil.tsx'
+import Registro from './Pages/ManejoDePerfil/Registro.tsx'
 import type { Cuenta } from './tipos.ts'
 
 // Lo que se ve en la barra de direcciones en cada pantalla

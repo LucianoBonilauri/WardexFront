@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode, type SubmitEvent } from 'react'
-import AvisoSesion from '../Components/AvisoSesion.tsx'
-import Header, { type Pagina } from '../Components/header.tsx'
-import type { Cuenta } from '../tipos.ts'
+import Header, { type Pagina } from '../../Components/header.tsx'
+import PerfilSinSesion from '../../Components/PerfilSinSesion.tsx'
+import type { Cuenta } from '../../tipos.ts'
 import './Perfil.css'
 
 type NombreCampo = 'nombreUsuario' | 'correo' | 'telefono' | 'contrasena'
@@ -25,7 +25,6 @@ type CampoProps = {
   placeholder: string
   autoComplete: string
   editable: boolean
-  deshabilitado: boolean
   corto?: boolean
   claseInput?: string
   onCambiar: (valor: string) => void
@@ -35,7 +34,7 @@ type CampoProps = {
 }
 
 // Etiqueta, campo y el lápiz que lo habilita para editar
-function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable, deshabilitado, corto, claseInput, onCambiar, onEditar, children }: CampoProps) {
+function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable, corto, claseInput, onCambiar, onEditar, children }: CampoProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Al tocar el lápiz, el cursor queda listo para escribir
@@ -58,13 +57,12 @@ function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable,
             placeholder={placeholder}
             autoComplete={autoComplete}
             readOnly={!editable}
-            disabled={deshabilitado}
             onChange={(event) => onCambiar(event.target.value)}
           />
           {children}
         </div>
 
-        <button type="button" className="perfil-lapiz" aria-label={`Editar ${etiqueta.toLowerCase()}`} disabled={deshabilitado} onClick={onEditar}>
+        <button type="button" className="perfil-lapiz" aria-label={`Editar ${etiqueta.toLowerCase()}`} onClick={onEditar}>
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
             <path d="m15 5 4 4" />
@@ -76,7 +74,7 @@ function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable,
 }
 
 type PerfilProps = {
-  // null = nadie inició sesión, y la pantalla se muestra vacía
+  // null = nadie inició sesión, y se muestra la pantalla de "Tu perfil está esperándote"
   cuenta: Cuenta | null
   onCambiarPagina: (pagina: Pagina) => void
   // La contraseña con la que se entró en esta pestaña. null después de recargar: la API nunca la devuelve
@@ -94,20 +92,26 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
   const [verContrasena, setVerContrasena] = useState(false)
   const [error, setError] = useState('')
 
-  const sinCuenta = !cuenta
+  if (!cuenta) {
+    return (
+      <div className="perfil-page">
+        <Header paginaActual="perfil" onCambiarPagina={onCambiarPagina} />
+        <PerfilSinSesion onCambiarPagina={onCambiarPagina} />
+      </div>
+    )
+  }
+
   const hayCambios =
-    !sinCuenta &&
-    (nombreUsuario !== cuenta.nombreUsuario || correo !== cuenta.correo || telefono !== cuenta.telefono || contrasena !== '')
+    nombreUsuario !== cuenta.nombreUsuario || correo !== cuenta.correo || telefono !== cuenta.telefono || contrasena !== ''
   // El teléfono puede quedar vacío; el nombre de usuario y el correo no
   const puedeGuardar = hayCambios && nombreUsuario.trim() !== '' && correo.trim() !== ''
-  const inicialesUsuario = cuenta ? iniciales(cuenta.nombreUsuario) : ''
+  const inicialesUsuario = iniciales(cuenta.nombreUsuario)
 
   // El campo muestra la contraseña nueva si se está escribiendo una; si no, la actual (si se conoce)
   const valorContrasena = editando === 'contrasena' || contrasena !== '' ? contrasena : (contrasenaActual ?? '')
   // Si no se conoce ninguna (por ejemplo, después de recargar), se muestran puntitos de ejemplo
-  const contrasenaDeEjemplo = !sinCuenta && editando !== 'contrasena' && valorContrasena === ''
-  let placeholderContrasena = 'Creá una contraseña'
-  if (!sinCuenta) placeholderContrasena = editando === 'contrasena' ? 'Escribí la contraseña nueva' : '••••••••••••'
+  const contrasenaDeEjemplo = editando !== 'contrasena' && valorContrasena === ''
+  const placeholderContrasena = editando === 'contrasena' ? 'Escribí la contraseña nueva' : '••••••••••••'
 
   const guardar = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -126,14 +130,10 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
           <div className="perfil-encabezado">
             <p className="eyebrow">Tu cuenta</p>
             <h1>Perfil</h1>
-            <p className="perfil-subtitulo">
-              {sinCuenta ? 'Acá vas a ver los datos de tu cuenta.' : 'Los datos de tu cuenta en Wardex.'}
-            </p>
-
-            <AvisoSesion estado={sinCuenta ? 'visible' : 'oculto'} onCambiarPagina={onCambiarPagina} />
+            <p className="perfil-subtitulo">Los datos de tu cuenta en Wardex.</p>
           </div>
 
-          <div className={cuenta ? 'perfil-avatar' : 'perfil-avatar es-vacio'}>
+          <div className="perfil-avatar">
             {inicialesUsuario ? (
               <span className="perfil-iniciales">{inicialesUsuario}</span>
             ) : (
@@ -143,15 +143,13 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               </svg>
             )}
 
-            {cuenta && (
-              // TODO: falta definir cómo se sube la foto o el logo (necesita la API)
-              <button type="button" className="perfil-camara" aria-label="Cambiar foto">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                  <circle cx="12" cy="13" r="3" />
-                </svg>
-              </button>
-            )}
+            {/* TODO: falta definir cómo se sube la foto o el logo (necesita la API) */}
+            <button type="button" className="perfil-camara" aria-label="Cambiar foto">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                <circle cx="12" cy="13" r="3" />
+              </svg>
+            </button>
           </div>
 
           <div className="perfil-campos">
@@ -163,7 +161,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               placeholder="Agregá tu nombre de usuario"
               autoComplete="username"
               editable={editando === 'nombreUsuario'}
-              deshabilitado={sinCuenta}
               corto
               onCambiar={setNombreUsuario}
               onEditar={() => setEditando('nombreUsuario')}
@@ -177,7 +174,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               placeholder="Agregá tu correo"
               autoComplete="email"
               editable={editando === 'correo'}
-              deshabilitado={sinCuenta}
               onCambiar={setCorreo}
               onEditar={() => setEditando('correo')}
             />
@@ -190,7 +186,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               placeholder="Agregá tu número de teléfono"
               autoComplete="tel"
               editable={editando === 'telefono'}
-              deshabilitado={sinCuenta}
               corto
               onCambiar={setTelefono}
               onEditar={() => setEditando('telefono')}
@@ -204,7 +199,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               placeholder={placeholderContrasena}
               autoComplete="new-password"
               editable={editando === 'contrasena'}
-              deshabilitado={sinCuenta}
               claseInput={contrasenaDeEjemplo ? 'con-ojo es-ejemplo' : 'con-ojo'}
               onCambiar={setContrasena}
               onEditar={() => setEditando('contrasena')}
@@ -242,16 +236,14 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               Guardar cambios
             </button>
 
-            {cuenta && (
-              <button type="button" className="perfil-cerrar" onClick={onCerrarSesion}>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <path d="m16 17 5-5-5-5" />
-                  <path d="M21 12H9" />
-                </svg>
-                Cerrar sesión
-              </button>
-            )}
+            <button type="button" className="perfil-cerrar" onClick={onCerrarSesion}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="m16 17 5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              Cerrar sesión
+            </button>
           </div>
         </form>
       </main>
