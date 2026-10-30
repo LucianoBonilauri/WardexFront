@@ -22,14 +22,6 @@ function Alert({ numero, alerta }: AlertProps) {
         <h3 className="alerta-titulo">{alerta.titulo}</h3>
         <span className={`alerta-gravedad gravedad-${alerta.gravedad}`}>{ETIQUETA[alerta.gravedad]}</span>
       </div>
-
-      {/* TODO: falta definir qué muestra Ver más */}
-      <button type="button" className="alerta-ver-mas">
-        Ver más
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </button>
     </li>
   )
 }

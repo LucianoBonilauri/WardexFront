@@ -1,10 +1,11 @@
-/* Fila: número, título con su gravedad y el botón Ver más a la derecha */
+/* Fila: número y título con su gravedad. El alto mínimo hace que entren 4 filas en la lista (ver ListaAlertas.css) */
 .alerta {
   display: grid;
-  grid-template-columns: 2.7vw minmax(0, 1fr) auto;
+  grid-template-columns: 2.7vw minmax(0, 1fr);
   align-items: center;
   column-gap: 1.5vw;
-  padding: 2.35vh 1.05vw 2.35vh 1.8vw;
+  min-height: 9.6vh;
+  padding: 2.35vh 1.8vw;
   border-radius: 1.2vh;
   background: #11131e;
 }
@@ -56,41 +57,12 @@
   background: currentColor;
 }
 
-.alerta-ver-mas {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7vw;
-  min-height: 4.9vh;
-  padding: 0 1.1vw 0 1.3vw;
-  border: 0.15vh solid #40424d;
-  border-radius: 0.9vh;
-  color: #e9e9ed;
-  font-size: clamp(0.9rem, min(1.3vw, 2.1vh), 1.4rem);
-  font-weight: 600;
-  white-space: nowrap;
-  transition: opacity 180ms ease, transform 180ms ease;
-}
-
-.alerta-ver-mas:hover {
-  opacity: 0.78;
-  transform: translateY(-0.2vh);
-}
-
-.alerta-ver-mas svg {
-  width: 1em;
-  height: 1em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 @media (max-width: 52rem) {
   .alerta {
-    grid-template-columns: 5vw minmax(0, 1fr) auto;
+    grid-template-columns: 5vw minmax(0, 1fr);
     column-gap: 3vw;
-    padding: 2vh 3vw 2vh 4vw;
+    min-height: 8.9vh;
+    padding: 2vh 4vw;
   }
 
   .alerta-info {
@@ -100,10 +72,5 @@
   .alerta-gravedad {
     gap: 1.5vw;
     padding: 0 2.5vw;
-  }
-
-  .alerta-ver-mas {
-    gap: 1.5vw;
-    padding: 0 3vw;
   }
 }

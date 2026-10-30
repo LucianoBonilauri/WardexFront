@@ -1,8 +1,8 @@
 import type { Alerta, Gravedad } from '../tipos.ts'
 import { pedir } from './cliente.ts'
 
-// La API manda más datos por alerta (descripción, IPs, URLs...). Se van a usar cuando se arme "Ver más".
-// Ojo: esos datos vienen de los atacantes; hay que mostrarlos siempre como texto, nunca como HTML
+// La API manda más datos por alerta (descripción, IPs, URLs...) que por ahora no se muestran.
+// Ojo: esos datos vienen de los atacantes; si algún día se muestran, siempre como texto, nunca como HTML
 type NotificacionApi = {
   id: string
   severidad: Gravedad
