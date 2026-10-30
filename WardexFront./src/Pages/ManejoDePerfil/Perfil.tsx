@@ -9,17 +9,6 @@ import './Perfil.css'
 
 type NombreCampo = 'nombreUsuario' | 'correo' | 'telefono' | 'contrasena'
 
-// "Juan Pérez" → "JP"
-function iniciales(nombre: string): string {
-  return nombre
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((palabra) => palabra[0])
-    .join('')
-    .toUpperCase()
-}
-
 type CampoProps = {
   id: string
   etiqueta: string
@@ -124,7 +113,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCuentaActualizada
   // Ningún dato puede quedar vacío: el teléfono es adonde llegan los SMS de las alertas
   const datosCompletos = datos.nombreUsuario.trim() !== '' && datos.correo.trim() !== '' && datos.telefono.trim() !== ''
   const puedeGuardar = hayCambios && datosCompletos && (!pideConfirmacion || confirmacion !== '') && !guardando
-  const inicialesUsuario = iniciales(cuenta.nombreUsuario)
 
   // El campo muestra la contraseña nueva si se está escribiendo una; si no, la actual (si se conoce)
   const valorContrasena = editando === 'contrasena' || contrasena !== '' ? contrasena : (contrasenaActual ?? '')
@@ -193,25 +181,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCuentaActualizada
             <p className="eyebrow">Tu cuenta</p>
             <h1>Perfil</h1>
             <p className="perfil-subtitulo">Los datos de tu cuenta en Wardex.</p>
-          </div>
-
-          <div className="perfil-avatar">
-            {inicialesUsuario ? (
-              <span className="perfil-iniciales">{inicialesUsuario}</span>
-            ) : (
-              <svg className="perfil-avatar-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="12" cy="8" r="5" />
-                <path d="M20 21a8 8 0 0 0-16 0" />
-              </svg>
-            )}
-
-            {/* TODO: falta definir cómo se sube la foto o el logo (necesita la API) */}
-            <button type="button" className="perfil-camara" aria-label="Cambiar foto">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                <circle cx="12" cy="13" r="3" />
-              </svg>
-            </button>
           </div>
 
           <div className="perfil-campos">

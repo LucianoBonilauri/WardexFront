@@ -4,16 +4,15 @@
   min-height: 100vh;
 }
 
-/* Datos a la izquierda, la foto arriba a la derecha y Guardar cambios centrado abajo */
+/* Los datos arriba y Guardar cambios centrado abajo */
 .perfil {
   --ancho-campos: 53.4vw;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "encabezado avatar"
-    "campos avatar"
-    "guardar guardar";
-  column-gap: 4vw;
+    "encabezado"
+    "campos"
+    "guardar";
   padding: 7vh 4vw 8vh;
 }
 
@@ -37,7 +36,6 @@
 }
 
 .perfil-lapiz svg,
-.perfil-camara svg,
 .perfil-ojo svg {
   fill: none;
   stroke: currentColor;
@@ -152,55 +150,9 @@
   color: #e9e9ed;
 }
 
-.perfil-lapiz svg,
-.perfil-camara svg {
+.perfil-lapiz svg {
   width: 40%;
   height: 40%;
-}
-
-/* Foto: las iniciales del nombre de usuario, o el ícono de usuario si no se conoce el nombre */
-.perfil-avatar {
-  position: relative;
-  display: grid;
-  grid-area: avatar;
-  align-self: start;
-  justify-self: end;
-  place-items: center;
-  width: 25vh;
-  aspect-ratio: 1;
-  margin-top: 8vh;
-  border: 0.15vh solid #4a4573;
-  border-radius: 4.4vh;
-  background: linear-gradient(160deg, #302f4f, #1c1c2c);
-}
-
-.perfil-iniciales {
-  color: #e6e3ff;
-  font-size: 10vh;
-  font-weight: 500;
-  line-height: 1;
-}
-
-.perfil-avatar-icono {
-  width: 33%;
-  fill: none;
-  stroke: #8d8e97;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-}
-
-.perfil-camara {
-  position: absolute;
-  right: -0.9vh;
-  bottom: -0.9vh;
-  display: grid;
-  place-items: center;
-  width: 6vh;
-  aspect-ratio: 1;
-  border: 0.15vh solid #40424d;
-  border-radius: 50%;
-  background: var(--background);
-  color: #e9e9ed;
 }
 
 /* Guardar cambios centrado abajo, con el error de la API arriba si lo hay */
@@ -272,14 +224,12 @@
 }
 
 .perfil-lapiz,
-.perfil-camara,
 .perfil-guardar,
 .perfil-cerrar {
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .perfil-lapiz:hover,
-.perfil-camara:hover,
 .perfil-cerrar:hover,
 .perfil-guardar:not(:disabled):hover {
   opacity: 0.78;
@@ -289,23 +239,7 @@
 @media (max-width: 52rem) {
   .perfil {
     --ancho-campos: 100%;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "encabezado"
-      "avatar"
-      "campos"
-      "guardar";
     padding: 5vh 6vw 6vh;
-  }
-
-  .perfil-avatar {
-    justify-self: start;
-    width: 16vh;
-    margin-top: 3vh;
-  }
-
-  .perfil-iniciales {
-    font-size: 6.4vh;
   }
 
   .perfil-campos {

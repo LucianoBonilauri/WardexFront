@@ -4,7 +4,7 @@ import './header.css'
 
 export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'codigoAutenticacion' | 'dashboard' | 'perfil'
 
-// Las pantallas para entrar a una cuenta: ahí no se muestra "Probar Gratis"
+// Las pantallas para entrar a una cuenta: ahí no se muestra "Iniciar Sesión"
 const PANTALLAS_DE_CUENTA: Pagina[] = ['registro', 'iniciarSesion', 'codigoAutenticacion']
 
 const NAV_ITEMS = ['Inicio', 'Instalación', 'Dashboard', 'Perfil'] as const
@@ -78,8 +78,8 @@ function Header({ paginaActual, onCambiarPagina }: HeaderProps) {
 
       {/* En las pantallas de cuenta no se muestra: ya estás entrando. Sin él, el menú queda pegado a la derecha */}
       {!PANTALLAS_DE_CUENTA.includes(paginaActual) && (
-        <button type="button" className="login-button" onClick={() => onCambiarPagina('registro')}>
-          Probar Gratis
+        <button type="button" className="login-button" onClick={() => onCambiarPagina('iniciarSesion')}>
+          Iniciar Sesión
         </button>
       )}
     </header>
