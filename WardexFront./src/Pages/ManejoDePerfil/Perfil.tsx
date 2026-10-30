@@ -31,10 +31,12 @@ type CampoProps = {
   onEditar: () => void
   // Lo que va adentro del campo, a la derecha (el ojito de la contraseña)
   children?: ReactNode
+  // Un texto chico debajo del campo (por qué no se puede ver la contraseña)
+  ayuda?: string
 }
 
 // Etiqueta, campo y el lápiz que lo habilita para editar
-function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable, corto, claseInput, onCambiar, onEditar, children }: CampoProps) {
+function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable, corto, claseInput, onCambiar, onEditar, children, ayuda }: CampoProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Al tocar el lápiz, el cursor queda listo para escribir
@@ -69,6 +71,8 @@ function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable,
           </svg>
         </button>
       </div>
+
+      {ayuda && <p className="perfil-ayuda" role="status">{ayuda}</p>}
     </div>
   )
 }
@@ -90,6 +94,8 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
   const [contrasena, setContrasena] = useState('')
   const [editando, setEditando] = useState<NombreCampo | null>(null)
   const [verContrasena, setVerContrasena] = useState(false)
+  // Si se tocó el ojito cuando no se conoce la contraseña, se explica por qué no la muestra
+  const [explicarOjo, setExplicarOjo] = useState(false)
   const [error, setError] = useState('')
 
   if (!cuenta) {
@@ -202,14 +208,23 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               claseInput={contrasenaDeEjemplo ? 'con-ojo es-ejemplo' : 'con-ojo'}
               onCambiar={setContrasena}
               onEditar={() => setEditando('contrasena')}
+              ayuda={
+                explicarOjo && contrasenaDeEjemplo
+                  ? 'Por seguridad, la contraseña solo se puede ver después de iniciar sesión, hasta que recargues la página.'
+                  : undefined
+              }
             >
-              {/* Muestra lo que haya en el campo: la contraseña actual o la nueva que se está escribiendo */}
+              {/* Muestra lo que haya en el campo: la contraseña actual o la nueva que se está escribiendo.
+                  Si no hay nada para mostrar se ve apagado; si es porque no se conoce la actual, al tocarlo explica por qué */}
               <button
                 type="button"
                 className="perfil-ojo"
                 aria-label={verContrasena ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                disabled={valorContrasena === ''}
-                onClick={() => setVerContrasena(!verContrasena)}
+                aria-disabled={valorContrasena === ''}
+                onClick={() => {
+                  if (contrasenaDeEjemplo) setExplicarOjo(true)
+                  else if (valorContrasena !== '') setVerContrasena(!verContrasena)
+                }}
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   {verContrasena ? (
