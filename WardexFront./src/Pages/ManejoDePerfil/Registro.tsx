@@ -2,15 +2,16 @@ import { useState, type SubmitEvent } from 'react'
 import { mensajeDeError } from '../../api/cliente.ts'
 import { registrarse } from '../../api/cuenta.ts'
 import Header, { type Pagina } from '../../Components/header.tsx'
-import type { Cuenta } from '../../tipos.ts'
+import type { Verificacion } from './CodigoAutenticacion.tsx'
 import './cuenta.css'
 
 type RegistroProps = {
   onCambiarPagina: (pagina: Pagina) => void
-  onEntrar: (cuenta: Cuenta, contrasena: string) => void
+  // Con la cuenta creada, el backend manda un código al mail: se sigue en la pantalla del código
+  onPedirCodigo: (verificacion: Verificacion) => void
 }
 
-function Registro({ onCambiarPagina, onEntrar }: RegistroProps) {
+function Registro({ onCambiarPagina, onPedirCodigo }: RegistroProps) {
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [nombreUsuario, setNombreUsuario] = useState('')
@@ -25,7 +26,9 @@ function Registro({ onCambiarPagina, onEntrar }: RegistroProps) {
     setError('')
 
     try {
-      onEntrar(await registrarse({ correo, contrasena, nombreUsuario, telefono }), contrasena)
+      const creada = await registrarse({ correo, contrasena, nombreUsuario, telefono })
+      // Si el mail con el código no salió, el aviso del backend se muestra en la pantalla del código
+      onPedirCodigo({ correo: creada.correo, contrasena, origen: 'registro', aviso: creada.codigoEnviado ? undefined : creada.mensaje })
     } catch (err) {
       setError(mensajeDeError(err))
       setEnviando(false)

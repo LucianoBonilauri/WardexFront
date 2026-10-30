@@ -1,0 +1,118 @@
+/* Pantalla "Verificá tu cuenta": usa la tarjeta, el título y los botones de cuenta.css y suma las casillas del código */
+
+/* Más aire arriba y abajo que en el login, como en el diseño */
+.cuenta-card.codigo-card {
+  padding-top: 12.5vh;
+  padding-bottom: 7vh;
+}
+
+/* Que la última línea no quede con una sola palabra */
+.codigo-card .cuenta-lead {
+  text-wrap: pretty;
+}
+
+.codigo-correo {
+  color: #e9e9ed;
+  overflow-wrap: anywhere;
+}
+
+.codigo-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vh;
+  margin-top: 5.8vh;
+}
+
+/* Las 6 casillas en dos grupos de 3, con un guion en el medio */
+.codigo-casillas {
+  display: flex;
+  align-items: center;
+  gap: 0.55vw;
+  width: 100%;
+}
+
+/* Los tamaños de letra usan min(vw, vh) para que siempre entren en pantalla, aunque sea ancha y baja */
+.codigo-casilla {
+  flex: 1;
+  min-width: 0;
+  height: 8.1vh;
+  padding: 0;
+  border: 0.15vh solid #3e404b;
+  border-radius: 1vh;
+  background: #232532;
+  color: #e9e9ed;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(1.3rem, min(1.8vw, 3.4vh), 2.3rem);
+  text-align: center;
+  caret-color: var(--violet);
+  transition: border-color 180ms ease;
+}
+
+.codigo-casilla::placeholder {
+  color: #757575;
+}
+
+.codigo-casilla:focus {
+  outline: none;
+  border-color: var(--violet);
+}
+
+.codigo-guion {
+  flex: 0 0 auto;
+  padding: 0 0.5vw;
+  color: #545861;
+  font-size: clamp(1rem, min(1.4vw, 2.6vh), 1.8rem);
+}
+
+.codigo-form .cuenta-submit {
+  margin-top: 3.6vh;
+}
+
+/* Apagado mientras falten números, como en el diseño */
+.codigo-form .cuenta-submit:disabled {
+  opacity: 0.45;
+}
+
+.codigo-aviso,
+.codigo-reenviar {
+  margin: 0;
+  font-size: clamp(0.9rem, min(1vw, 1.95vh), 1.3rem);
+  line-height: 1.4;
+}
+
+/* Lo que avisa el backend: código reenviado, o que el mail no salió */
+.codigo-aviso {
+  color: #d3bd6c;
+}
+
+.codigo-reenviar {
+  color: #a9aab2;
+}
+
+/* Mientras corre la cuenta regresiva no se puede tocar */
+.codigo-reenviar .cuenta-link:disabled {
+  color: #80828c;
+  opacity: 1;
+  transform: none;
+  cursor: default;
+}
+
+@media (max-width: 52rem) {
+  .cuenta-card.codigo-card {
+    padding-top: 6vh;
+    padding-bottom: 4vh;
+  }
+
+  .codigo-casillas {
+    gap: 1.6vw;
+  }
+
+  .codigo-guion {
+    padding: 0 1vw;
+  }
+
+  .codigo-casilla {
+    height: 7vh;
+  }
+}

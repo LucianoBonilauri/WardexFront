@@ -2,15 +2,16 @@ import { useState, type SubmitEvent } from 'react'
 import { mensajeDeError } from '../../api/cliente.ts'
 import { iniciarSesion } from '../../api/cuenta.ts'
 import Header, { type Pagina } from '../../Components/header.tsx'
-import type { Cuenta } from '../../tipos.ts'
+import type { Verificacion } from './CodigoAutenticacion.tsx'
 import './cuenta.css'
 
 type IniciarSesionProps = {
   onCambiarPagina: (pagina: Pagina) => void
-  onEntrar: (cuenta: Cuenta, contrasena: string) => void
+  // Con la contraseña bien, el backend manda un código al mail: se sigue en la pantalla del código
+  onPedirCodigo: (verificacion: Verificacion) => void
 }
 
-function IniciarSesion({ onCambiarPagina, onEntrar }: IniciarSesionProps) {
+function IniciarSesion({ onCambiarPagina, onPedirCodigo }: IniciarSesionProps) {
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [mostrarContrasena, setMostrarContrasena] = useState(false)
@@ -23,7 +24,8 @@ function IniciarSesion({ onCambiarPagina, onEntrar }: IniciarSesionProps) {
     setError('')
 
     try {
-      onEntrar(await iniciarSesion(correo, contrasena), contrasena)
+      await iniciarSesion(correo, contrasena)
+      onPedirCodigo({ correo, contrasena, origen: 'login' })
     } catch (err) {
       setError(mensajeDeError(err))
       setEnviando(false)

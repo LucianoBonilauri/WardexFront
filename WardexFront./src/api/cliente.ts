@@ -47,11 +47,18 @@ export function mensajeDeError(error: unknown): string {
 
 type Metodo = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
+// Rutas para entrar, que no usan la sesión: no se les manda el token, y un 401 ahí no significa que la sesión venció
+const RUTAS_SIN_SESION = ['/auth/login', '/auth/crearusuario', '/auth/verificar', '/auth/reenviar-codigo']
+
+// Los mensajes del backend que están pensados para mostrarse tal cual:
+// datos mal cargados (400), ya existe (409), demasiados intentos (429) y no se pudo mandar el mail (503)
+const MENSAJES_DEL_BACKEND = [400, 409, 429, 503]
+
 // mensajes: el texto para mostrar según el código de error de cada request (por ejemplo, 401 en el login)
 export async function pedir<T>(metodo: Metodo, ruta: string, cuerpo?: unknown, mensajes: Record<number, string> = {}): Promise<T> {
   const headers: Record<string, string> = {}
   if (cuerpo !== undefined) headers['Content-Type'] = 'application/json'
-  const token = localStorage.getItem(CLAVE_TOKEN)
+  const token = RUTAS_SIN_SESION.includes(ruta) ? null : localStorage.getItem(CLAVE_TOKEN)
   if (token) headers.Authorization = `Bearer ${token}`
 
   let respuesta: Response
@@ -76,8 +83,7 @@ export async function pedir<T>(metodo: Metodo, ruta: string, cuerpo?: unknown, m
       alVencer()
     }
 
-    // Los mensajes de 400 y 409 del backend están pensados para mostrarse tal cual
-    const delBackend = respuesta.status === 400 || respuesta.status === 409 ? datos?.message : undefined
+    const delBackend = MENSAJES_DEL_BACKEND.includes(respuesta.status) ? datos?.message : undefined
     const mensaje = mensajes[respuesta.status]
       ?? delBackend
       ?? (respuesta.status === 401 ? 'Tu sesión venció. Iniciá sesión de nuevo.' : 'Algo salió mal. Probá de nuevo en un rato.')

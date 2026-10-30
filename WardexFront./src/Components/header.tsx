@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import logo from '../assets/Logo_final.png'
 import './header.css'
 
-export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'dashboard' | 'perfil'
+export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'codigoAutenticacion' | 'dashboard' | 'perfil'
+
+// Las pantallas para entrar a una cuenta: ahí no se muestra "Probar Gratis"
+const PANTALLAS_DE_CUENTA: Pagina[] = ['registro', 'iniciarSesion', 'codigoAutenticacion']
 
 const NAV_ITEMS = ['Inicio', 'Instalación', 'Dashboard', 'Perfil'] as const
 type NavItem = (typeof NAV_ITEMS)[number]
@@ -73,8 +76,8 @@ function Header({ paginaActual, onCambiarPagina }: HeaderProps) {
         ))}
       </nav>
 
-      {/* En registro e iniciar sesión no se muestra: ya estás en las pantallas de cuenta. Sin él, el menú queda pegado a la derecha */}
-      {paginaActual !== 'registro' && paginaActual !== 'iniciarSesion' && (
+      {/* En las pantallas de cuenta no se muestra: ya estás entrando. Sin él, el menú queda pegado a la derecha */}
+      {!PANTALLAS_DE_CUENTA.includes(paginaActual) && (
         <button type="button" className="login-button" onClick={() => onCambiarPagina('registro')}>
           Probar Gratis
         </button>
