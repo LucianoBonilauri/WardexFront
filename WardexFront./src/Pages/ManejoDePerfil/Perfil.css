@@ -136,18 +136,9 @@
 }
 
 /* Apagado cuando no hay nada para mostrar, como Guardar cambios */
-.perfil-ojo[aria-disabled="true"] {
+.perfil-ojo:disabled {
   opacity: 0.45;
   cursor: default;
-}
-
-/* Texto chico debajo de un campo, del mismo tamaño que las etiquetas */
-.perfil-ayuda {
-  max-width: var(--ancho-campos);
-  margin: 1.2vh 0 0;
-  color: #a9aab2;
-  font-size: clamp(0.8rem, min(1.1vw, 1.95vh), 1.25rem);
-  line-height: 1.4;
 }
 
 .perfil-lapiz {

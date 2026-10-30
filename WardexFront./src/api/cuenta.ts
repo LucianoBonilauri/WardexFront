@@ -4,6 +4,9 @@ import { ErrorApi, guardarToken, hayTokenVigente, pedir } from './cliente.ts'
 // La API no tiene una ruta que devuelva los datos de la cuenta: se guardan en el navegador
 // con lo que se escribió al registrarse o al iniciar sesión
 const CLAVE_CUENTA = 'wardex-cuenta'
+// La contraseña con la que se inició sesión, para que el ojito de Perfil la pueda mostrar (la API nunca la devuelve).
+// Dura lo mismo que la sesión: se borra al cerrarla o cuando vence
+const CLAVE_CONTRASENA = 'wardex-contrasena'
 
 function leerCuenta(): Cuenta | null {
   const guardada = localStorage.getItem(CLAVE_CUENTA)
@@ -17,10 +20,19 @@ function guardarCuenta(cuenta: Cuenta) {
 // Al abrir o recargar la app: la cuenta guardada, si el token todavía vale. Si no, null
 export function cuentaGuardada(): Cuenta | null {
   if (!hayTokenVigente()) {
-    guardarToken(null)
+    cerrarSesion()
     return null
   }
   return leerCuenta()
+}
+
+export function guardarContrasena(contrasena: string) {
+  localStorage.setItem(CLAVE_CONTRASENA, contrasena)
+}
+
+// Al abrir o recargar la app: la contraseña guardada, si la sesión sigue abierta. Si no, null
+export function contrasenaGuardada(): string | null {
+  return hayTokenVigente() ? localStorage.getItem(CLAVE_CONTRASENA) : null
 }
 
 // Para entrar hacen falta dos pasos: la contraseña (login o registro), que hace que el backend mande
@@ -59,7 +71,7 @@ export async function registrarse(datos: Cuenta & { contrasena: string }) {
   })
 
   // Si había otra sesión abierta en este navegador, se cierra: ahora se está entrando con esta cuenta
-  guardarToken(null)
+  cerrarSesion()
   // El nombre y el teléfono se guardan ya: la API no tiene una ruta para pedirlos después
   guardarCuenta({ nombreUsuario: usuario.nombre_usuario, correo: usuario.mail, telefono: usuario.telefono })
   return { correo: usuario.mail, codigoEnviado: codigo_enviado, mensaje: message }
@@ -86,7 +98,8 @@ export async function reenviarCodigoRegistro(correo: string): Promise<string> {
   return message
 }
 
-// La API no tiene una ruta para cerrar sesión: alcanza con borrar el token de este navegador
+// La API no tiene una ruta para cerrar sesión: alcanza con borrar el token de este navegador (y la contraseña guardada)
 export function cerrarSesion() {
   guardarToken(null)
+  localStorage.removeItem(CLAVE_CONTRASENA)
 }

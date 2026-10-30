@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { alVencerLaSesion } from './api/cliente.ts'
-import { cerrarSesion, cuentaGuardada } from './api/cuenta.ts'
+import { cerrarSesion, contrasenaGuardada, cuentaGuardada, guardarContrasena } from './api/cuenta.ts'
 import type { Pagina } from './Components/header.tsx'
 import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
@@ -38,8 +38,8 @@ function App() {
   // Al abrir o recargar la app se recupera la que quedó guardada en el navegador, si el token todavía vale
   const [cuenta, setCuenta] = useState<Cuenta | null>(cuentaGuardada)
   // La contraseña con la que se entró, para que el ojito de Perfil la pueda mostrar.
-  // Vive solo en la memoria de esta pestaña: nunca se guarda en el navegador y se pierde al recargar
-  const [contrasenaSesion, setContrasenaSesion] = useState<string | null>(null)
+  // Queda guardada en el navegador mientras dure la sesión (la API nunca la devuelve) y se borra al cerrarla
+  const [contrasenaSesion, setContrasenaSesion] = useState<string | null>(contrasenaGuardada)
   // Los datos de la pantalla del código (correo, de dónde se vino y la contraseña para reenviarlo).
   // Solo en memoria y solo mientras se está en esa pantalla: al salir se borran
   const [verificacion, setVerificacion] = useState<Verificacion | null>(null)
@@ -47,6 +47,7 @@ function App() {
   // El token dura 1 hora: cuando la API avisa que venció, se cierra la sesión y se vuelve al login
   useEffect(() => {
     alVencerLaSesion(() => {
+      cerrarSesion()
       setCuenta(null)
       setContrasenaSesion(null)
       window.history.pushState(null, '', RUTAS.iniciarSesion)
@@ -92,6 +93,7 @@ function App() {
 
   // Después de ingresar el código: recién ahí hay sesión
   const entrar = (nueva: Cuenta, contrasena: string) => {
+    guardarContrasena(contrasena)
     setCuenta(nueva)
     setContrasenaSesion(contrasena)
     cambiarPagina('dashboard')

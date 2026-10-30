@@ -31,12 +31,10 @@ type CampoProps = {
   onEditar: () => void
   // Lo que va adentro del campo, a la derecha (el ojito de la contraseña)
   children?: ReactNode
-  // Un texto chico debajo del campo (por qué no se puede ver la contraseña)
-  ayuda?: string
 }
 
 // Etiqueta, campo y el lápiz que lo habilita para editar
-function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable, corto, claseInput, onCambiar, onEditar, children, ayuda }: CampoProps) {
+function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable, corto, claseInput, onCambiar, onEditar, children }: CampoProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Al tocar el lápiz, el cursor queda listo para escribir
@@ -71,8 +69,6 @@ function Campo({ id, etiqueta, tipo, valor, placeholder, autoComplete, editable,
           </svg>
         </button>
       </div>
-
-      {ayuda && <p className="perfil-ayuda" role="status">{ayuda}</p>}
     </div>
   )
 }
@@ -81,7 +77,7 @@ type PerfilProps = {
   // null = nadie inició sesión, y se muestra la pantalla de "Tu perfil está esperándote"
   cuenta: Cuenta | null
   onCambiarPagina: (pagina: Pagina) => void
-  // La contraseña con la que se entró en esta pestaña. null después de recargar: la API nunca la devuelve
+  // La contraseña con la que se inició sesión (queda guardada en el navegador). null si no se conoce: la API nunca la devuelve
   contrasenaActual: string | null
   onCerrarSesion: () => void
 }
@@ -94,8 +90,6 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
   const [contrasena, setContrasena] = useState('')
   const [editando, setEditando] = useState<NombreCampo | null>(null)
   const [verContrasena, setVerContrasena] = useState(false)
-  // Si se tocó el ojito cuando no se conoce la contraseña, se explica por qué no la muestra
-  const [explicarOjo, setExplicarOjo] = useState(false)
   const [error, setError] = useState('')
 
   if (!cuenta) {
@@ -115,7 +109,7 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
 
   // El campo muestra la contraseña nueva si se está escribiendo una; si no, la actual (si se conoce)
   const valorContrasena = editando === 'contrasena' || contrasena !== '' ? contrasena : (contrasenaActual ?? '')
-  // Si no se conoce ninguna (por ejemplo, después de recargar), se muestran puntitos de ejemplo
+  // Si no se conoce ninguna, se muestran puntitos de ejemplo
   const contrasenaDeEjemplo = editando !== 'contrasena' && valorContrasena === ''
   const placeholderContrasena = editando === 'contrasena' ? 'Escribí la contraseña nueva' : '••••••••••••'
 
@@ -123,7 +117,8 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
     event.preventDefault()
     if (!puedeGuardar) return
 
-    // TODO: la API todavía no tiene una ruta para editar la cuenta. Cuando la tenga, mandar acá solo los campos que cambiaron
+    // TODO: la API todavía no tiene una ruta para editar la cuenta. Cuando la tenga, mandar acá solo los campos que cambiaron.
+    // Si se cambia la contraseña, actualizar también la guardada (guardarContrasena), o el ojito va a mostrar la vieja
     setError('Por ahora no se pueden guardar cambios en la cuenta.')
   }
 
@@ -208,23 +203,14 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               claseInput={contrasenaDeEjemplo ? 'con-ojo es-ejemplo' : 'con-ojo'}
               onCambiar={setContrasena}
               onEditar={() => setEditando('contrasena')}
-              ayuda={
-                explicarOjo && contrasenaDeEjemplo
-                  ? 'Por seguridad, la contraseña solo se puede ver después de iniciar sesión, hasta que recargues la página.'
-                  : undefined
-              }
             >
-              {/* Muestra lo que haya en el campo: la contraseña actual o la nueva que se está escribiendo.
-                  Si no hay nada para mostrar se ve apagado; si es porque no se conoce la actual, al tocarlo explica por qué */}
+              {/* Muestra lo que haya en el campo: la contraseña actual o la nueva que se está escribiendo. Apagado si no hay nada */}
               <button
                 type="button"
                 className="perfil-ojo"
                 aria-label={verContrasena ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                aria-disabled={valorContrasena === ''}
-                onClick={() => {
-                  if (contrasenaDeEjemplo) setExplicarOjo(true)
-                  else if (valorContrasena !== '') setVerContrasena(!verContrasena)
-                }}
+                disabled={valorContrasena === ''}
+                onClick={() => setVerContrasena(!verContrasena)}
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   {verContrasena ? (
