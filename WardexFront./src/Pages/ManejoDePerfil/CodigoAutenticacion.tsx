@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent, type SubmitEvent } from 'react'
 import { mensajeDeError } from '../../api/cliente.ts'
-import { iniciarSesion, reenviarCodigoRegistro, verificarCodigo } from '../../api/cuenta.ts'
+import { confirmarCambioDeMail, iniciarSesion, pedirCambioDeMail, reenviarCodigoRegistro, verificarCodigo } from '../../api/cuenta.ts'
 import Header, { type Pagina } from '../../Components/header.tsx'
 import type { Cuenta } from '../../tipos.ts'
 import './cuenta.css'
@@ -9,10 +9,11 @@ import './CodigoAutenticacion.css'
 // Lo que necesita esta pantalla. Vive solo en la memoria de la app mientras se está acá:
 // nunca se guarda en el navegador (así lo pide el backend) y se borra al salir de la pantalla
 export type Verificacion = {
+  // Adonde se mandó el código (al cambiar el mail, el mail nuevo)
   correo: string
-  // De dónde se vino: cambia cómo se reenvía el código
-  origen: 'login' | 'registro'
-  // Para reenviar el código desde el login: la API pide de nuevo el correo y la contraseña
+  // De dónde se vino: cambia qué confirma el código y cómo se reenvía
+  origen: 'login' | 'registro' | 'mail'
+  // Para reenviar el código desde el login o el cambio de mail: la API pide de nuevo la contraseña
   contrasena: string
   // Un aviso del backend para mostrar al llegar (por ejemplo, si el mail del registro no salió)
   aviso?: string
@@ -30,6 +31,7 @@ type CodigoAutenticacionProps = {
 
 function CodigoAutenticacion({ verificacion, onVerificado, onCambiarPagina }: CodigoAutenticacionProps) {
   const { correo, origen, contrasena } = verificacion
+  const cambiandoMail = origen === 'mail'
   const [digitos, setDigitos] = useState<string[]>(() => Array(CANTIDAD).fill(''))
   const [verificando, setVerificando] = useState(false)
   const [reenviando, setReenviando] = useState(false)
@@ -107,11 +109,19 @@ function CodigoAutenticacion({ verificacion, onVerificado, onCambiarPagina }: Co
     setAviso('')
 
     try {
-      onVerificado(await verificarCodigo(correo, codigo))
+      onVerificado(await (cambiandoMail ? confirmarCambioDeMail(codigo) : verificarCodigo(correo, codigo)))
     } catch (err) {
       setError(mensajeDeError(err))
       setVerificando(false)
     }
+  }
+
+  // Desde el login se reenvía entrando de nuevo con la contraseña; desde el cambio de mail, pidiendo el cambio
+  // de nuevo; desde el registro, con su propia ruta
+  const pedirOtroCodigo = () => {
+    if (origen === 'login') return iniciarSesion(correo, contrasena)
+    if (origen === 'mail') return pedirCambioDeMail(correo, contrasena)
+    return reenviarCodigoRegistro(correo)
   }
 
   const reenviar = async () => {
@@ -120,8 +130,7 @@ function CodigoAutenticacion({ verificacion, onVerificado, onCambiarPagina }: Co
     setAviso('')
 
     try {
-      // Desde el login se reenvía entrando de nuevo con la contraseña; desde el registro, con su propia ruta
-      setAviso(origen === 'login' ? await iniciarSesion(correo, contrasena) : await reenviarCodigoRegistro(correo))
+      setAviso(await pedirOtroCodigo())
       setFaltan(ESPERA_REENVIO)
       setDigitos(Array(CANTIDAD).fill(''))
       enfocar(0)
@@ -142,7 +151,7 @@ function CodigoAutenticacion({ verificacion, onVerificado, onCambiarPagina }: Co
 
       <main className="cuenta">
         <section className="cuenta-card codigo-card" aria-labelledby="codigo-title">
-          <h1 id="codigo-title">Verificá tu cuenta</h1>
+          <h1 id="codigo-title">{cambiandoMail ? 'Confirmá tu mail nuevo' : 'Verificá tu cuenta'}</h1>
           <p className="cuenta-lead">
             Ingresá el código de 6 dígitos que te enviamos a <span className="codigo-correo">{correo}</span>. Vence en 15 minutos.
           </p>
@@ -188,8 +197,9 @@ function CodigoAutenticacion({ verificacion, onVerificado, onCambiarPagina }: Co
           </form>
 
           <p className="cuenta-footer">
-            <button type="button" className="cuenta-link" onClick={() => onCambiarPagina('iniciarSesion')}>
-              Volver a iniciar sesión
+            {/* Si se estaba cambiando el mail, volver deja el mail como estaba */}
+            <button type="button" className="cuenta-link" onClick={() => onCambiarPagina(cambiandoMail ? 'perfil' : 'iniciarSesion')}>
+              {cambiandoMail ? 'Volver al perfil' : 'Volver a iniciar sesión'}
             </button>
           </p>
         </section>

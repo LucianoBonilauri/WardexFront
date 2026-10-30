@@ -15,6 +15,37 @@ export type Alerta = {
   id: string
   titulo: string
   gravedad: Gravedad
+  // Lo que se ve al tocar "Ver más"
+  detalle: DetalleAlerta
+}
+
+// Todo lo que el agente sabe del ataque. Las alertas viejas pueden traer null en algunos datos: ahí no se muestran.
+// Las rutas, las herramientas y las líneas del log las escribe el atacante: se muestran siempre como texto,
+// nunca como HTML ni como links
+export type DetalleAlerta = {
+  // Una frase para el usuario que arma el agente
+  descripcion: string | null
+  desde: Date
+  hasta: Date | null
+  detectadoEn: Date
+  // El sitio atacado
+  host: string
+  // La primera es la principal
+  ips: string[]
+  // Cuántos pedidos hizo el atacante
+  pedidos: number | null
+  // Porcentajes de respuestas con error, de 0 a 100
+  pct404: number | null
+  pct4xx: number | null
+  pct5xx: number | null
+  // Las herramientas que usó el atacante, como "gobuster/3.8.2"
+  userAgents: string[]
+  // Las rutas que probó: las que existían van primero
+  urlsEjemplo: string[]
+  // Líneas tal cual del log del servidor (formato Apache)
+  lineasEjemplo: string[]
+  score: number
+  fuenteDeteccion: string
 }
 
 // Un servidor del usuario, con el agente de WardeX instalado

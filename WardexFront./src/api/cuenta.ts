@@ -1,20 +1,29 @@
 import type { Cuenta } from '../tipos.ts'
 import { ErrorApi, guardarToken, hayTokenVigente, pedir } from './cliente.ts'
 
-// La API no tiene una ruta que devuelva los datos de la cuenta: se guardan en el navegador
-// con lo que se escribió al registrarse o al iniciar sesión
+// Los datos de la cuenta también quedan guardados en el navegador, para tenerlos al recargar sin esperar a la API
 const CLAVE_CUENTA = 'wardex-cuenta'
 // La contraseña con la que se inició sesión, para que el ojito de Perfil la pueda mostrar (la API nunca la devuelve).
 // Dura lo mismo que la sesión: se borra al cerrarla o cuando vence
 const CLAVE_CONTRASENA = 'wardex-contrasena'
+
+// La cuenta como la manda la API (también manda el id y si el mail está verificado, que no se usan)
+type UsuarioApi = {
+  nombre_usuario: string
+  mail: string
+  telefono: string
+}
 
 function leerCuenta(): Cuenta | null {
   const guardada = localStorage.getItem(CLAVE_CUENTA)
   return guardada ? JSON.parse(guardada) : null
 }
 
-function guardarCuenta(cuenta: Cuenta) {
+// Pasa la cuenta que mandó la API al formato de las pantallas y la deja guardada en el navegador
+function guardarCuenta(usuario: UsuarioApi): Cuenta {
+  const cuenta = { nombreUsuario: usuario.nombre_usuario, correo: usuario.mail, telefono: usuario.telefono }
   localStorage.setItem(CLAVE_CUENTA, JSON.stringify(cuenta))
+  return cuenta
 }
 
 // Al abrir o recargar la app: la cuenta guardada, si el token todavía vale. Si no, null
@@ -52,11 +61,7 @@ export async function iniciarSesion(correo: string, contrasena: string): Promise
 // Lo que devuelve el registro
 type RespuestaRegistro = {
   message: string
-  usuario: {
-    nombre_usuario: string
-    mail: string
-    telefono: string
-  }
+  usuario: UsuarioApi
   // false si la cuenta se creó pero el mail con el código no salió
   codigo_enviado: boolean
 }
@@ -72,23 +77,16 @@ export async function registrarse(datos: Cuenta & { contrasena: string }) {
 
   // Si había otra sesión abierta en este navegador, se cierra: ahora se está entrando con esta cuenta
   cerrarSesion()
-  // El nombre y el teléfono se guardan ya: la API no tiene una ruta para pedirlos después
-  guardarCuenta({ nombreUsuario: usuario.nombre_usuario, correo: usuario.mail, telefono: usuario.telefono })
   return { correo: usuario.mail, codigoEnviado: codigo_enviado, mensaje: message }
 }
 
-// POST /auth/verificar: la única ruta que devuelve el token. El código va como texto porque puede empezar con 0
+// POST /auth/verificar: la única ruta que devuelve el token, junto con los datos de la cuenta.
+// El código va como texto porque puede empezar con 0
 export async function verificarCodigo(correo: string, codigo: string): Promise<Cuenta> {
-  const { token } = await pedir<{ token?: string }>('POST', '/auth/verificar', { mail: correo, codigo })
-  if (!token) throw new ErrorApi(500, 'Algo salió mal. Probá de nuevo en un rato.')
+  const { token, usuario } = await pedir<{ token?: string; usuario?: UsuarioApi }>('POST', '/auth/verificar', { mail: correo, codigo })
+  if (!token || !usuario) throw new ErrorApi(500, 'Algo salió mal. Probá de nuevo en un rato.')
   guardarToken(token)
-
-  // El token no trae el nombre ni el teléfono: se usan los que quedaron de esta cuenta, si los hay
-  const anterior = leerCuenta()
-  const mismoCorreo = anterior?.correo.toLowerCase() === correo.toLowerCase()
-  const cuenta = mismoCorreo && anterior ? anterior : { nombreUsuario: '', correo, telefono: '' }
-  guardarCuenta(cuenta)
-  return cuenta
+  return guardarCuenta(usuario)
 }
 
 // POST /auth/reenviar-codigo: otro código para terminar el registro.
@@ -96,6 +94,46 @@ export async function verificarCodigo(correo: string, codigo: string): Promise<C
 export async function reenviarCodigoRegistro(correo: string): Promise<string> {
   const { message } = await pedir<{ message: string }>('POST', '/auth/reenviar-codigo', { mail: correo })
   return message
+}
+
+// GET /auth/usuario: los datos de la cuenta, por si cambiaron desde otro dispositivo
+export async function obtenerCuenta(): Promise<Cuenta> {
+  const { usuario } = await pedir<{ usuario: UsuarioApi }>('GET', '/auth/usuario')
+  return guardarCuenta(usuario)
+}
+
+// PATCH /auth/usuario: cambia el nombre de usuario y el teléfono (los que no se mandan quedan como están).
+// Devuelve la cuenta como quedó guardada: por ejemplo, el teléfono sin espacios ni guiones
+export async function editarCuenta(cambios: { nombreUsuario?: string; telefono?: string }): Promise<Cuenta> {
+  const { usuario } = await pedir<{ usuario: UsuarioApi }>('PATCH', '/auth/usuario', {
+    nombre_usuario: cambios.nombreUsuario,
+    telefono: cambios.telefono,
+  })
+  return guardarCuenta(usuario)
+}
+
+// POST /auth/cambiar-password. Devuelve un token nuevo porque el anterior deja de servir
+// (también se cierran las sesiones abiertas en otros dispositivos)
+export async function cambiarContrasena(actual: string, nueva: string) {
+  const { token } = await pedir<{ token?: string }>('POST', '/auth/cambiar-password', { password_actual: actual, password_nueva: nueva })
+  if (!token) throw new ErrorApi(500, 'Algo salió mal. Probá de nuevo en un rato.')
+  guardarToken(token)
+  guardarContrasena(nueva)
+}
+
+// Cambiar el mail lleva dos pasos, como entrar. Primero POST /auth/cambiar-mail, con la contraseña actual:
+// el backend manda un código al mail nuevo. Llamarla de nuevo sirve para reenviar el código
+export async function pedirCambioDeMail(mailNuevo: string, contrasena: string): Promise<string> {
+  const { message } = await pedir<{ message: string }>('POST', '/auth/cambiar-mail', { mail_nuevo: mailNuevo, password: contrasena })
+  return message
+}
+
+// Después, POST /auth/confirmar-mail con ese código. Devuelve un token nuevo porque el anterior deja de servir
+export async function confirmarCambioDeMail(codigo: string): Promise<Cuenta> {
+  const { token, usuario } = await pedir<{ token?: string; usuario?: UsuarioApi }>('POST', '/auth/confirmar-mail', { codigo })
+  if (!token || !usuario) throw new ErrorApi(500, 'Algo salió mal. Probá de nuevo en un rato.')
+  guardarToken(token)
+  return guardarCuenta(usuario)
 }
 
 // La API no tiene una ruta para cerrar sesión: alcanza con borrar el token de este navegador (y la contraseña guardada)

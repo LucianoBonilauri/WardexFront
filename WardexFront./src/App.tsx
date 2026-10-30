@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { alVencerLaSesion } from './api/cliente.ts'
-import { cerrarSesion, contrasenaGuardada, cuentaGuardada, guardarContrasena } from './api/cuenta.ts'
+import { alVencerLaSesion, hayTokenVigente } from './api/cliente.ts'
+import { cerrarSesion, contrasenaGuardada, cuentaGuardada, guardarContrasena, obtenerCuenta } from './api/cuenta.ts'
 import type { Pagina } from './Components/header.tsx'
 import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
@@ -24,12 +24,13 @@ const RUTAS: Record<Pagina, string> = {
 
 // La pantalla de la dirección actual, sin importar mayúsculas ni la barra del final. Si no es ninguna (como "/"), Inicio.
 // La del código necesita datos que solo viven en memoria: si se llega escribiendo la dirección, recargando
-// o con las flechas del navegador, esos datos ya no están y se va al login
+// o con las flechas del navegador, esos datos ya no están y se va al login (o a Perfil si hay sesión: se estaba cambiando el mail)
 function paginaDeLaUrl(): Pagina {
   const ruta = window.location.pathname.replace(/\/$/, '').toLowerCase()
   const paginas = Object.keys(RUTAS) as Pagina[]
   const pagina = paginas.find((p) => RUTAS[p].toLowerCase() === ruta) ?? 'inicio'
-  return pagina === 'codigoAutenticacion' ? 'iniciarSesion' : pagina
+  if (pagina !== 'codigoAutenticacion') return pagina
+  return hayTokenVigente() ? 'perfil' : 'iniciarSesion'
 }
 
 function App() {
@@ -71,6 +72,18 @@ function App() {
     return () => window.removeEventListener('popstate', seguirLaUrl)
   }, [])
 
+  // Al entrar a Perfil se vuelven a pedir los datos de la cuenta, por si cambiaron desde otro dispositivo
+  useEffect(() => {
+    if (pagina !== 'perfil' || !hayTokenVigente()) return
+
+    obtenerCuenta()
+      .then((nueva) => {
+        // Si mientras tanto se cerró la sesión, ya no sirven
+        if (hayTokenVigente()) setCuenta(nueva)
+      })
+      .catch((error) => console.error('No se pudieron traer los datos de la cuenta:', error))
+  }, [pagina])
+
   const cambiarPagina = (nueva: Pagina) => {
     // La página nueva arranca desde arriba, sin la animación del scroll suave
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -80,7 +93,7 @@ function App() {
     setPagina(nueva)
   }
 
-  // Después de la contraseña (login o registro), el backend manda un código al mail: sigue la pantalla del código
+  // Después de la contraseña (login, registro o cambio de mail), el backend manda un código al mail: sigue la pantalla del código
   const pedirCodigo = (datos: Verificacion) => {
     // Al crear una cuenta nueva se cierra la sesión que hubiera abierta en este navegador
     if (datos.origen === 'registro') {
@@ -91,12 +104,13 @@ function App() {
     cambiarPagina('codigoAutenticacion')
   }
 
-  // Después de ingresar el código: recién ahí hay sesión
-  const entrar = (nueva: Cuenta, contrasena: string) => {
+  // Después de ingresar el código: recién ahí hay sesión. Si se estaba cambiando el mail, la sesión sigue
+  // (con un token nuevo) y se vuelve a Perfil
+  const entrar = (nueva: Cuenta, contrasena: string, destino: Pagina) => {
     guardarContrasena(contrasena)
     setCuenta(nueva)
     setContrasenaSesion(contrasena)
-    cambiarPagina('dashboard')
+    cambiarPagina(destino)
   }
 
   // Botón Cerrar sesión de Perfil
@@ -119,7 +133,7 @@ function App() {
     return (
       <CodigoAutenticacion
         verificacion={verificacion}
-        onVerificado={(nueva) => entrar(nueva, verificacion.contrasena)}
+        onVerificado={(nueva) => entrar(nueva, verificacion.contrasena, verificacion.origen === 'mail' ? 'perfil' : 'dashboard')}
         onCambiarPagina={cambiarPagina}
       />
     )
@@ -137,7 +151,18 @@ function App() {
 
   if (pagina === 'perfil') {
     // La key hace que Perfil arranque de nuevo si cambia la sesión, para que los campos se llenen con los datos que corresponden
-    return <Perfil key={cuenta?.correo ?? 'sin-cuenta'} onCambiarPagina={cambiarPagina} cuenta={cuenta} contrasenaActual={contrasenaSesion} onCerrarSesion={salir} />
+    return (
+      <Perfil
+        key={cuenta?.correo ?? 'sin-cuenta'}
+        onCambiarPagina={cambiarPagina}
+        cuenta={cuenta}
+        contrasenaActual={contrasenaSesion}
+        onCuentaActualizada={setCuenta}
+        onContrasenaCambiada={setContrasenaSesion}
+        onPedirCodigo={pedirCodigo}
+        onCerrarSesion={salir}
+      />
+    )
   }
 
   return <Inicio onCambiarPagina={cambiarPagina} />

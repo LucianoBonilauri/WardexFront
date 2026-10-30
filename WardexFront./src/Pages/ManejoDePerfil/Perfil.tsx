@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode, type SubmitEvent } from 'react'
+import { mensajeDeError } from '../../api/cliente.ts'
+import { cambiarContrasena, editarCuenta, pedirCambioDeMail } from '../../api/cuenta.ts'
 import Header, { type Pagina } from '../../Components/header.tsx'
 import PerfilSinSesion from '../../Components/PerfilSinSesion.tsx'
 import type { Cuenta } from '../../tipos.ts'
+import type { Verificacion } from './CodigoAutenticacion.tsx'
 import './Perfil.css'
 
 type NombreCampo = 'nombreUsuario' | 'correo' | 'telefono' | 'contrasena'
@@ -79,18 +82,27 @@ type PerfilProps = {
   onCambiarPagina: (pagina: Pagina) => void
   // La contraseña con la que se inició sesión (queda guardada en el navegador). null si no se conoce: la API nunca la devuelve
   contrasenaActual: string | null
+  // Después de guardar, para que toda la app use los datos nuevos
+  onCuentaActualizada: (cuenta: Cuenta) => void
+  onContrasenaCambiada: (contrasena: string) => void
+  // Para cambiar el mail, el backend manda un código al mail nuevo: se sigue en la pantalla del código
+  onPedirCodigo: (verificacion: Verificacion) => void
   onCerrarSesion: () => void
 }
 
-function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: PerfilProps) {
-  const [nombreUsuario, setNombreUsuario] = useState(cuenta?.nombreUsuario ?? '')
-  const [correo, setCorreo] = useState(cuenta?.correo ?? '')
-  const [telefono, setTelefono] = useState(cuenta?.telefono ?? '')
+function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCuentaActualizada, onContrasenaCambiada, onPedirCodigo, onCerrarSesion }: PerfilProps) {
+  // Lo que se escribió en cada campo. Los que no se tocaron muestran el dato de la cuenta (y se actualizan si llega uno nuevo)
+  const [cambios, setCambios] = useState<Partial<Cuenta>>({})
   // Solo la contraseña nueva, si la escribe
   const [contrasena, setContrasena] = useState('')
+  // La contraseña actual: el backend la pide para cambiar el mail o la contraseña
+  const [confirmacion, setConfirmacion] = useState('')
   const [editando, setEditando] = useState<NombreCampo | null>(null)
   const [verContrasena, setVerContrasena] = useState(false)
+  const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
+  // Lo que se guardó bien
+  const [aviso, setAviso] = useState('')
 
   if (!cuenta) {
     return (
@@ -101,10 +113,17 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
     )
   }
 
-  const hayCambios =
-    nombreUsuario !== cuenta.nombreUsuario || correo !== cuenta.correo || telefono !== cuenta.telefono || contrasena !== ''
-  // El teléfono puede quedar vacío; el nombre de usuario y el correo no
-  const puedeGuardar = hayCambios && nombreUsuario.trim() !== '' && correo.trim() !== ''
+  const datos = { ...cuenta, ...cambios }
+  const cambiaNombre = datos.nombreUsuario !== cuenta.nombreUsuario
+  const cambiaCorreo = datos.correo !== cuenta.correo
+  const cambiaTelefono = datos.telefono !== cuenta.telefono
+  const cambiaContrasena = contrasena !== ''
+  const hayCambios = cambiaNombre || cambiaCorreo || cambiaTelefono || cambiaContrasena
+  // Para cambiar el mail o la contraseña, el backend pide la actual: aparece un campo para escribirla
+  const pideConfirmacion = cambiaCorreo || cambiaContrasena
+  // Ningún dato puede quedar vacío: el teléfono es adonde llegan los SMS de las alertas
+  const datosCompletos = datos.nombreUsuario.trim() !== '' && datos.correo.trim() !== '' && datos.telefono.trim() !== ''
+  const puedeGuardar = hayCambios && datosCompletos && (!pideConfirmacion || confirmacion !== '') && !guardando
   const inicialesUsuario = iniciales(cuenta.nombreUsuario)
 
   // El campo muestra la contraseña nueva si se está escribiendo una; si no, la actual (si se conoce)
@@ -113,13 +132,55 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
   const contrasenaDeEjemplo = editando !== 'contrasena' && valorContrasena === ''
   const placeholderContrasena = editando === 'contrasena' ? 'Escribí la contraseña nueva' : '••••••••••••'
 
-  const guardar = (event: SubmitEvent<HTMLFormElement>) => {
+  // Se guarda en orden: nombre y teléfono, la contraseña y por último el mail, que sigue en la pantalla del código.
+  // Si algo falla, lo anterior ya quedó guardado y se muestra el error
+  const guardar = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!puedeGuardar) return
+    setGuardando(true)
+    setError('')
+    setAviso('')
 
-    // TODO: la API todavía no tiene una ruta para editar la cuenta. Cuando la tenga, mandar acá solo los campos que cambiaron.
-    // Si se cambia la contraseña, actualizar también la guardada (guardarContrasena), o el ojito va a mostrar la vieja
-    setError('Por ahora no se pueden guardar cambios en la cuenta.')
+    // La contraseña actual que pide el backend. Si se cambia la contraseña, desde ahí la actual es la nueva
+    let actual = confirmacion
+
+    try {
+      if (cambiaNombre || cambiaTelefono) {
+        // Solo los que cambiaron
+        const guardada = await editarCuenta({
+          nombreUsuario: cambiaNombre ? datos.nombreUsuario : undefined,
+          telefono: cambiaTelefono ? datos.telefono : undefined,
+        })
+        onCuentaActualizada(guardada)
+        // Ahora los campos muestran lo guardado (el teléfono puede volver sin espacios); el mail, si cambió, sigue pendiente
+        setCambios(cambiaCorreo ? { correo: datos.correo } : {})
+      }
+
+      if (cambiaContrasena) {
+        await cambiarContrasena(actual, contrasena)
+        actual = contrasena
+        onContrasenaCambiada(contrasena)
+        setContrasena('')
+        // Si después falla el cambio de mail, al reintentar ya va la nueva
+        setConfirmacion(contrasena)
+      }
+
+      // El mail cambia recién cuando se ingresa el código que el backend manda al mail nuevo
+      if (cambiaCorreo) {
+        await pedirCambioDeMail(datos.correo, actual)
+        onPedirCodigo({ correo: datos.correo, contrasena: actual, origen: 'mail' })
+        return
+      }
+
+      setCambios({})
+      setConfirmacion('')
+      setEditando(null)
+      setAviso(cambiaContrasena ? 'Guardamos los cambios. Se cerraron las sesiones abiertas en otros dispositivos.' : 'Guardamos los cambios.')
+    } catch (err) {
+      setError(mensajeDeError(err))
+    } finally {
+      setGuardando(false)
+    }
   }
 
   return (
@@ -158,12 +219,12 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               id="perfil-nombre-usuario"
               etiqueta="Nombre de usuario"
               tipo="text"
-              valor={nombreUsuario}
+              valor={datos.nombreUsuario}
               placeholder="Agregá tu nombre de usuario"
               autoComplete="username"
               editable={editando === 'nombreUsuario'}
               corto
-              onCambiar={setNombreUsuario}
+              onCambiar={(valor) => setCambios({ ...cambios, nombreUsuario: valor })}
               onEditar={() => setEditando('nombreUsuario')}
             />
 
@@ -171,11 +232,11 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               id="perfil-correo"
               etiqueta="Correo electrónico"
               tipo="email"
-              valor={correo}
+              valor={datos.correo}
               placeholder="Agregá tu correo"
               autoComplete="email"
               editable={editando === 'correo'}
-              onCambiar={setCorreo}
+              onCambiar={(valor) => setCambios({ ...cambios, correo: valor })}
               onEditar={() => setEditando('correo')}
             />
 
@@ -183,12 +244,12 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
               id="perfil-telefono"
               etiqueta="Número de teléfono"
               tipo="tel"
-              valor={telefono}
+              valor={datos.telefono}
               placeholder="Agregá tu número de teléfono"
               autoComplete="tel"
               editable={editando === 'telefono'}
               corto
-              onCambiar={setTelefono}
+              onCambiar={(valor) => setCambios({ ...cambios, telefono: valor })}
               onEditar={() => setEditando('telefono')}
             />
 
@@ -229,12 +290,34 @@ function Perfil({ cuenta, onCambiarPagina, contrasenaActual, onCerrarSesion }: P
                 </svg>
               </button>
             </Campo>
+
+            {/* Solo si se cambia el mail o la contraseña: el backend pide la actual, para que nadie más pueda cambiarlos */}
+            {pideConfirmacion && (
+              <div className="perfil-campo">
+                <label className="perfil-etiqueta" htmlFor="perfil-confirmacion">Contraseña actual</label>
+                <div className="perfil-fila es-corta">
+                  <div className="perfil-caja">
+                    <input
+                      id="perfil-confirmacion"
+                      className="perfil-input"
+                      type="password"
+                      value={confirmacion}
+                      placeholder="Escribí tu contraseña actual"
+                      autoComplete="current-password"
+                      onChange={(event) => setConfirmacion(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="perfil-acciones">
             {error && <p className="perfil-error" role="alert">{error}</p>}
+            {/* Si se vuelve a cambiar algo, el aviso de lo que se guardó antes ya no corresponde */}
+            {aviso && !hayCambios && <p className="perfil-aviso" role="status">{aviso}</p>}
             <button type="submit" className="perfil-guardar" disabled={!puedeGuardar}>
-              Guardar cambios
+              {guardando ? 'Guardando…' : 'Guardar cambios'}
             </button>
 
             <button type="button" className="perfil-cerrar" onClick={onCerrarSesion}>

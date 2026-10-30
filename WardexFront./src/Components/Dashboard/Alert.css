@@ -1,11 +1,14 @@
-/* Fila: número y título con su gravedad. El alto mínimo hace que entren 4 filas en la lista (ver ListaAlertas.css) */
+/* Fila: número, título con su gravedad y el botón Ver más a la derecha; abajo, el detalle si está abierto.
+   El alto mínimo hace que entren 4 filas en la lista (ver ListaAlertas.css).
+   flex-shrink: 0 para que la lista, que tiene alto máximo, no achique la fila abierta: en vez de eso, scrollea */
 .alerta {
   display: grid;
-  grid-template-columns: 2.7vw minmax(0, 1fr);
+  flex-shrink: 0;
+  grid-template-columns: 2.7vw minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 1.5vw;
   min-height: 9.6vh;
-  padding: 2.35vh 1.8vw;
+  padding: 2.35vh 1.05vw 2.35vh 1.8vw;
   border-radius: 1.2vh;
   background: #11131e;
 }
@@ -57,12 +60,275 @@
   background: currentColor;
 }
 
+.alerta-ver-mas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7vw;
+  min-height: 4.9vh;
+  padding: 0 1.1vw 0 1.3vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 0.9vh;
+  color: #e9e9ed;
+  font-size: clamp(0.9rem, min(1.3vw, 2.1vh), 1.4rem);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.alerta-ver-mas:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+.alerta-ver-mas svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 180ms ease;
+}
+
+/* Abierto, la flecha apunta para arriba */
+.alerta-ver-mas[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+/* El detalle va debajo del título y ocupa el resto del ancho */
+.alerta-detalle {
+  display: flex;
+  grid-column: 2 / -1;
+  flex-direction: column;
+  gap: 2.8vh;
+  min-width: 0;
+  margin-top: 2.35vh;
+  padding: 2.8vh 0.75vw 0.6vh 0;
+  border-top: 0.15vh solid #262836;
+}
+
+/* display: flex le gana al atributo hidden: cerrado, hay que ocultarlo a mano */
+.alerta-detalle[hidden] {
+  display: none;
+}
+
+/* El título chico de cada parte, como las etiquetas de las cards */
+.alerta-subtitulo {
+  margin: 0 0 1.3vh;
+  color: #8d8e97;
+  font-size: clamp(0.7rem, min(0.88vw, 1.4vh), 1rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Rutas que existen en el sitio: arriba de todo y en el rojo de las críticas (clase gravedad-critica) */
+.alerta-encontradas {
+  padding: 2.3vh 1.4vw;
+  border: 0.15vh solid color-mix(in srgb, var(--color-gravedad) 45%, transparent);
+  border-radius: 1.2vh;
+  background: color-mix(in srgb, var(--color-gravedad) 9%, transparent);
+}
+
+.alerta-encontradas .alerta-subtitulo {
+  color: var(--color-gravedad);
+}
+
+.alerta-encontradas-aviso {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(0.9rem, min(1.2vw, 1.95vh), 1.3rem);
+  line-height: 1.5;
+}
+
+.alerta-encontradas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  margin: 2.2vh 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* La ruta en grande con su código al lado, y abajo la línea completa del log */
+.alerta-encontrada {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9vh 0.8vw;
+}
+
+.alerta-encontrada-ruta {
+  min-width: 0;
+  color: #ffffff;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(1.1rem, min(1.65vw, 2.65vh), 1.8rem);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.alerta-encontrada-estado {
+  padding: 0.35vh 0.6vw;
+  border-radius: 0.6vh;
+  background: color-mix(in srgb, var(--color-gravedad) 20%, transparent);
+  color: var(--color-gravedad);
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.75rem, min(0.95vw, 1.55vh), 1.05rem);
+  font-weight: 600;
+}
+
+.alerta-encontrada-linea {
+  flex-basis: 100%;
+  color: #c9cad1;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.72rem, min(0.9vw, 1.5vh), 0.95rem);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.alerta-descripcion {
+  margin: 0;
+  color: #e9e9ed;
+  font-size: clamp(1rem, min(1.45vw, 2.35vh), 1.55rem);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+/* Cuándo y en qué sitio */
+.alerta-cuando {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6vh 0.8vw;
+  margin: 0;
+  color: #a9aab2;
+  font-size: clamp(0.85rem, min(1.15vw, 1.9vh), 1.2rem);
+}
+
+.alerta-separador {
+  color: #545861;
+}
+
+.alerta-host {
+  min-width: 0;
+  color: #e9e9ed;
+  overflow-wrap: anywhere;
+}
+
+/* IP, pedidos y % de 404, uno al lado del otro */
+.alerta-datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4vh 1vw;
+  margin: 0;
+}
+
+.alerta-dato {
+  padding: 1.8vh 1.2vw;
+  border: 0.15vh solid #262836;
+  border-radius: 1vh;
+  background: #171a27;
+}
+
+.alerta-dato dt {
+  color: #8d8e97;
+  font-size: clamp(0.7rem, min(0.88vw, 1.4vh), 1rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.alerta-dato dd {
+  margin: 0.9vh 0 0;
+  color: #e9e9ed;
+  font-size: clamp(1rem, min(1.45vw, 2.35vh), 1.55rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* Las otras IPs, más chicas abajo de la principal */
+.alerta-dato-extra {
+  display: block;
+  margin-top: 0.6vh;
+  color: #8d8e97;
+  font-size: clamp(0.75rem, min(0.95vw, 1.55vh), 1.05rem);
+  font-weight: 400;
+}
+
+.alerta-herramientas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #e9e9ed;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.85rem, min(1.1vw, 1.8vh), 1.15rem);
+  overflow-wrap: anywhere;
+}
+
+.alerta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9vh 0.5vw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alerta-chip {
+  max-width: 100%;
+  padding: 0.55vh 0.7vw;
+  border: 0.15vh solid #40424d;
+  border-radius: 0.7vh;
+  background: #171a27;
+  color: #c9cad1;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.75rem, min(0.95vw, 1.55vh), 1rem);
+  overflow-wrap: anywhere;
+}
+
+/* Las líneas del log son largas: el bloque scrollea de costado por dentro, sin ensanchar la página */
+.alerta-log {
+  margin: 0;
+  padding: 1.6vh 1vw;
+  overflow-x: auto;
+  border: 0.15vh solid #262836;
+  border-radius: 1vh;
+  background: var(--background);
+  color: #a9aab2;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.72rem, min(0.9vw, 1.5vh), 0.95rem);
+  line-height: 1.75;
+  scrollbar-color: #40424d transparent;
+  scrollbar-width: thin;
+}
+
+.alerta-log:focus-visible {
+  outline: 0.2vh solid var(--violet);
+  outline-offset: 0.2vh;
+}
+
+.alerta-log-linea {
+  display: block;
+  font: inherit;
+}
+
+/* Las que el servidor respondió con 2xx, en el rojo de las críticas */
+.alerta-log-linea.gravedad-critica {
+  color: var(--color-gravedad);
+}
+
 @media (max-width: 52rem) {
   .alerta {
-    grid-template-columns: 5vw minmax(0, 1fr);
+    grid-template-columns: 5vw minmax(0, 1fr) auto;
     column-gap: 3vw;
     min-height: 8.9vh;
-    padding: 2vh 4vw;
+    padding: 2vh 3vw 2vh 4vw;
   }
 
   .alerta-info {
@@ -72,5 +338,49 @@
   .alerta-gravedad {
     gap: 1.5vw;
     padding: 0 2.5vw;
+  }
+
+  .alerta-ver-mas {
+    gap: 1.5vw;
+    padding: 0 3vw;
+  }
+
+  /* En pantalla chica el detalle usa todo el ancho de la fila */
+  .alerta-detalle {
+    grid-column: 1 / -1;
+    padding-right: 1vw;
+  }
+
+  .alerta-encontradas {
+    padding: 2vh 4vw;
+  }
+
+  .alerta-encontrada {
+    gap: 0.9vh 2vw;
+  }
+
+  .alerta-encontrada-estado {
+    padding: 0.35vh 2vw;
+  }
+
+  /* La grilla pasa a una columna */
+  .alerta-datos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .alerta-dato {
+    padding: 1.6vh 4vw;
+  }
+
+  .alerta-chips {
+    gap: 0.9vh 2vw;
+  }
+
+  .alerta-chip {
+    padding: 0.5vh 2.5vw;
+  }
+
+  .alerta-log {
+    padding: 1.5vh 3vw;
   }
 }
