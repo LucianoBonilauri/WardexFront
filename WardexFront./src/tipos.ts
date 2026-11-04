@@ -13,7 +13,9 @@ export type Gravedad = 'critica' | 'alta' | 'media' | 'baja'
 // Una alerta de ataque que mandó el agente
 export type Alerta = {
   id: string
-  titulo: string
+  // El tipo de ataque como lo manda la API (escaneo_rutas, sql_i, path_transversal, fuerza_bruta).
+  // El nombre que se muestra y los rótulos de la tarjeta salen de TIPOS, en Alert.tsx
+  tipo: string
   gravedad: Gravedad
   // Lo que se ve al tocar "Ver más"
   detalle: DetalleAlerta
@@ -46,6 +48,20 @@ export type DetalleAlerta = {
   lineasEjemplo: string[]
   score: number
   fuenteDeteccion: string
+  // La técnica de MITRE ATT&CK del ataque. null si no vino (alertas viejas)
+  mitre: Mitre | null
+}
+
+// Una técnica de MITRE ATT&CK, el catálogo público de técnicas de ataque
+export type Mitre = {
+  // Por ejemplo "T1595.003"
+  tecnica: string
+  // Por ejemplo "Active Scanning: Wordlist Scanning"
+  nombre: string
+  // Por ejemplo "TA0043"
+  tactica: string
+  // Por ejemplo "Reconocimiento"
+  nombreTactica: string
 }
 
 // Un servidor del usuario, con el agente de WardeX instalado

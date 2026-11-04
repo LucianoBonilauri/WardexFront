@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import type { Alerta, DetalleAlerta, Gravedad } from '../../tipos.ts'
+import type { Alerta, DetalleAlerta, Gravedad, Mitre } from '../../tipos.ts'
 import './Alert.css'
 
 const ETIQUETA: Record<Gravedad, string> = {
@@ -7,6 +7,54 @@ const ETIQUETA: Record<Gravedad, string> = {
   alta: 'Alto',
   media: 'Medio',
   baja: 'Bajo',
+}
+
+// Cómo se muestra cada tipo de alerta: su nombre y los rótulos de la tarjeta
+type TipoDeAlerta = {
+  nombre: string
+  // El rótulo de detalle.pedidos
+  pedidos: string
+  // El título de la lista de detalle.urlsEjemplo
+  probadas: string
+  // Qué porcentaje se muestra y con qué rótulo. null: ninguno
+  porcentaje: { campo: 'pct404' | 'pct4xx'; rotulo: string } | null
+  // Algo que traían adelante los valores viejos de la lista, y que no se muestra
+  prefijoViejo?: string
+}
+
+// Los rótulos del escaneo de rutas. Los usan también los tipos que no están en TIPOS
+const ROTULOS_DE_ESCANEO: Omit<TipoDeAlerta, 'nombre'> = {
+  pedidos: 'Pedidos',
+  probadas: 'Rutas probadas',
+  porcentaje: { campo: 'pct404', rotulo: '% de 404' },
+}
+
+// La inyección SQL y la inclusión de archivos reciben 400, no 404: se muestra el % de todos los 4xx
+const PORCENTAJE_4XX = { campo: 'pct4xx', rotulo: '% de errores 4xx' } as const
+
+const TIPOS: Record<string, TipoDeAlerta> = {
+  escaneo_rutas: { nombre: 'Escaneo de rutas', ...ROTULOS_DE_ESCANEO },
+  sql_i: { nombre: 'Inyección SQL', ...ROTULOS_DE_ESCANEO, porcentaje: PORCENTAJE_4XX },
+  path_transversal: { nombre: 'Inclusión de archivos', ...ROTULOS_DE_ESCANEO, porcentaje: PORCENTAJE_4XX },
+  // En SSH no hay rutas ni respuestas HTTP: los porcentajes siempre dan 0 y no se muestran
+  fuerza_bruta: {
+    nombre: 'Fuerza bruta contra SSH',
+    pedidos: 'Contraseñas fallidas',
+    probadas: 'Usuarios probados',
+    porcentaje: null,
+    // Las alertas viejas traían "usuario: admin" en vez de "admin"
+    prefijoViejo: 'usuario: ',
+  },
+}
+
+// Un tipo que no está en TIPOS se muestra tal cual llega, con los rótulos del escaneo
+function tipoDeAlerta(tipo: string): TipoDeAlerta {
+  return Object.hasOwn(TIPOS, tipo) ? TIPOS[tipo] : { nombre: tipo, ...ROTULOS_DE_ESCANEO }
+}
+
+// "usuario: admin" → "admin", si el tipo tiene un prefijo viejo para sacar
+function sinPrefijo(valor: string, prefijo?: string): string {
+  return prefijo && valor.startsWith(prefijo) ? valor.slice(prefijo.length) : valor
 }
 
 // Separa la ruta y el código de respuesta de una línea del log del servidor (formato Apache):
@@ -45,20 +93,52 @@ function numero(valor: number): string {
   return valor.toLocaleString('es-AR', { maximumFractionDigits: 1 })
 }
 
+// "T1595.003" → https://attack.mitre.org/techniques/T1595/003/. Si la técnica no tiene el formato de MITRE
+// (una T con 4 números, y a veces un punto con 3 más), no se arma el link
+function linkMitre(tecnica: string): string | null {
+  return /^T\d{4}(\.\d{3})?$/.test(tecnica) ? `https://attack.mitre.org/techniques/${tecnica.replace('.', '/')}/` : null
+}
+
+// La técnica de MITRE ATT&CK: "T1595.003 · Reconocimiento" como link a su página, y el nombre chico abajo
+function EtiquetaMitre({ mitre }: { mitre: Mitre }) {
+  const link = linkMitre(mitre.tecnica)
+  const texto = [mitre.tecnica, mitre.nombreTactica].filter(Boolean).join(' · ')
+
+  return (
+    <div className="alerta-mitre">
+      {link ? (
+        <a className="alerta-mitre-etiqueta" href={link} target="_blank" rel="noopener noreferrer" aria-label={`${texto} (se abre en otra pestaña)`}>
+          {texto}
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M7 7h10v10" />
+            <path d="M7 17 17 7" />
+          </svg>
+        </a>
+      ) : (
+        <span className="alerta-mitre-etiqueta">{texto}</span>
+      )}
+      {mitre.nombre && <span className="alerta-mitre-nombre">{mitre.nombre}</span>}
+    </div>
+  )
+}
+
 type PanelDetalleProps = {
   detalle: DetalleAlerta
+  tipo: TipoDeAlerta
   // Cuándo se abrió el panel, para decir "hoy" o "ayer"
   ahora: number
 }
 
 // Lo que se despliega con "Ver más". Las rutas, las herramientas y las líneas del log las escribe el atacante:
 // van siempre entre llaves, como texto. Nunca dangerouslySetInnerHTML, ni links, ni en un href o un src
-function PanelDetalle({ detalle, ahora }: PanelDetalleProps) {
+function PanelDetalle({ detalle, tipo, ahora }: PanelDetalleProps) {
   const lineas = detalle.lineasEjemplo.map(leerLinea)
   // Rutas que existen en el sitio: respondieron 2xx y no son la página principal
   const encontradas = lineas.filter((linea) => linea.exito && linea.ruta !== '/')
   const [ipPrincipal, ...otrasIps] = detalle.ips
-  const hayDatos = ipPrincipal !== undefined || detalle.pedidos !== null || detalle.pct404 !== null
+  // El porcentaje que corresponde al tipo. null si el tipo no muestra ninguno o la alerta no lo trae
+  const porcentaje = tipo.porcentaje ? detalle[tipo.porcentaje.campo] : null
+  const hayDatos = ipPrincipal !== undefined || detalle.pedidos !== null || porcentaje !== null
 
   return (
     <>
@@ -81,6 +161,8 @@ function PanelDetalle({ detalle, ahora }: PanelDetalleProps) {
       )}
 
       {detalle.descripcion && <p className="alerta-descripcion">{detalle.descripcion}</p>}
+
+      {detalle.mitre && <EtiquetaMitre mitre={detalle.mitre} />}
 
       <p className="alerta-cuando">
         <time dateTime={detalle.desde.toISOString()}>{cuando(detalle.desde, detalle.hasta, ahora)}</time>
@@ -105,14 +187,14 @@ function PanelDetalle({ detalle, ahora }: PanelDetalleProps) {
           )}
           {detalle.pedidos !== null && (
             <div className="alerta-dato">
-              <dt>Pedidos</dt>
+              <dt>{tipo.pedidos}</dt>
               <dd>{numero(detalle.pedidos)}</dd>
             </div>
           )}
-          {detalle.pct404 !== null && (
+          {tipo.porcentaje && porcentaje !== null && (
             <div className="alerta-dato">
-              <dt>% de 404</dt>
-              <dd>{numero(detalle.pct404)}%</dd>
+              <dt>{tipo.porcentaje.rotulo}</dt>
+              <dd>{numero(porcentaje)}%</dd>
             </div>
           )}
         </dl>
@@ -131,11 +213,11 @@ function PanelDetalle({ detalle, ahora }: PanelDetalleProps) {
 
       {detalle.urlsEjemplo.length > 0 && (
         <div>
-          <h4 className="alerta-subtitulo">Rutas probadas</h4>
+          <h4 className="alerta-subtitulo">{tipo.probadas}</h4>
           <ul className="alerta-chips">
             {detalle.urlsEjemplo.map((url, i) => (
               <li key={i} className="alerta-chip">
-                {url}
+                {sinPrefijo(url, tipo.prefijoViejo)}
               </li>
             ))}
           </ul>
@@ -168,13 +250,15 @@ function Alert({ numero, alerta }: AlertProps) {
   // Cuándo se abrió el detalle (para decir "hoy" o "ayer"). null = cerrado
   const [abiertoEn, setAbiertoEn] = useState<number | null>(null)
   const idDetalle = useId()
+  const tipo = tipoDeAlerta(alerta.tipo)
 
   return (
-    <li className="alerta">
+    // La clase de gravedad en la fila deja destacar las críticas (ver Alert.css)
+    <li className={`alerta gravedad-${alerta.gravedad}`}>
       <span className="alerta-numero" aria-hidden="true">{numero}</span>
 
       <div className="alerta-info">
-        <h3 className="alerta-titulo">{alerta.titulo}</h3>
+        <h3 className="alerta-titulo">{tipo.nombre}</h3>
         <span className={`alerta-gravedad gravedad-${alerta.gravedad}`}>{ETIQUETA[alerta.gravedad]}</span>
       </div>
 
@@ -193,7 +277,7 @@ function Alert({ numero, alerta }: AlertProps) {
 
       {/* Cerrado queda vacío y oculto: así aria-controls siempre apunta a algo */}
       <div id={idDetalle} className="alerta-detalle" hidden={abiertoEn === null}>
-        {abiertoEn !== null && <PanelDetalle detalle={alerta.detalle} ahora={abiertoEn} />}
+        {abiertoEn !== null && <PanelDetalle detalle={alerta.detalle} tipo={tipo} ahora={abiertoEn} />}
       </div>
     </li>
   )

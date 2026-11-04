@@ -1,5 +1,13 @@
-import type { Alerta, Gravedad } from '../tipos.ts'
+import type { Alerta, Gravedad, Mitre } from '../tipos.ts'
 import { pedir } from './cliente.ts'
+
+// La técnica de MITRE ATT&CK como la manda la API
+type MitreApi = {
+  tecnica: string
+  nombre: string
+  tactica: string
+  nombre_tactica: string
+}
 
 // Una alerta como la manda la API. Las alertas viejas pueden traer null en descripcion, hasta, pedidos y pct_*.
 // Ojo: las rutas, las herramientas y las líneas del log vienen de los atacantes: siempre como texto, nunca como HTML
@@ -23,18 +31,15 @@ type NotificacionApi = {
   lineas_ejemplo: string[]
   score: number
   fuente_deteccion: string
+  // Nuevo, y puede no venir (alertas viejas, o si el back todavía no se redeployó). La doc nueva lo pone en
+  // resumen.mitre, pero lo demás de resumen (pedidos, ips...) la API lo manda suelto: se acepta en los dos lugares
+  mitre?: MitreApi | null
+  resumen?: { mitre?: MitreApi | null }
 }
 
-// El texto para mostrar de cada tipo de ataque (el que sugiere el backend)
-const TEXTO_TIPO: Record<string, string> = {
-  fuerza_bruta: 'Fuerza bruta',
-  sql_i: 'Inyección SQL',
-  escaneo_rutas: 'Escaneo de rutas',
-  path_transversal: 'Path traversal',
-  escaneo_red: 'Escaneo de red',
-  webshell: 'Webshell',
-  exfiltracion: 'Exfiltración de datos',
-  denegacion_servicio: 'Denegación de servicio',
+function mitreDeLaApi(mitre: MitreApi | null | undefined): Mitre | null {
+  if (!mitre?.tecnica) return null
+  return { tecnica: mitre.tecnica, nombre: mitre.nombre, tactica: mitre.tactica, nombreTactica: mitre.nombre_tactica }
 }
 
 // GET /notificaciones: las alertas que mandaron los agentes, de la más nueva a la más vieja.
@@ -44,7 +49,7 @@ export async function obtenerAlertas(): Promise<Alerta[]> {
 
   return notificaciones.map((notificacion) => ({
     id: notificacion.id,
-    titulo: TEXTO_TIPO[notificacion.tipo] ?? 'Actividad sospechosa',
+    tipo: notificacion.tipo,
     gravedad: notificacion.severidad,
     detalle: {
       descripcion: notificacion.descripcion,
@@ -62,6 +67,7 @@ export async function obtenerAlertas(): Promise<Alerta[]> {
       lineasEjemplo: notificacion.lineas_ejemplo,
       score: notificacion.score,
       fuenteDeteccion: notificacion.fuente_deteccion,
+      mitre: mitreDeLaApi(notificacion.resumen?.mitre ?? notificacion.mitre),
     },
   }))
 }

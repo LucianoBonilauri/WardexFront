@@ -60,6 +60,19 @@
   background: currentColor;
 }
 
+/* Crítico se tiene que distinguir de Alto aunque los dos colores sean cálidos: la etiqueta va rellena,
+   y la fila lleva una franja a la izquierda y un fondo apenas rojo (el color sale de gravedad-critica) */
+.alerta-gravedad.gravedad-critica {
+  background: var(--color-gravedad);
+  color: #1a0d10;
+  font-weight: 700;
+}
+
+.alerta.gravedad-critica {
+  background: color-mix(in srgb, var(--color-gravedad) 8%, #11131e);
+  box-shadow: inset 0.5vh 0 0 var(--color-gravedad);
+}
+
 .alerta-ver-mas {
   display: inline-flex;
   align-items: center;
@@ -197,6 +210,58 @@
   text-wrap: pretty;
 }
 
+/* La técnica de MITRE ATT&CK: una etiqueta violeta que es link, y su nombre chico abajo */
+.alerta-mitre {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8vh;
+}
+
+.alerta-mitre-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5vw;
+  min-height: 3.6vh;
+  padding: 0 0.8vw;
+  border: 0.15vh solid color-mix(in srgb, var(--violet) 55%, transparent);
+  border-radius: 0.6vh;
+  background: color-mix(in srgb, var(--violet) 12%, transparent);
+  color: #d2cefd;
+  font-size: clamp(0.8rem, min(1vw, 1.65vh), 1.1rem);
+  font-weight: 600;
+}
+
+a.alerta-mitre-etiqueta {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+a.alerta-mitre-etiqueta:hover {
+  opacity: 0.78;
+  transform: translateY(-0.2vh);
+}
+
+a.alerta-mitre-etiqueta:focus-visible {
+  outline: 0.2vh solid var(--violet);
+  outline-offset: 0.2vh;
+}
+
+.alerta-mitre-etiqueta svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.alerta-mitre-nombre {
+  color: #8d8e97;
+  font-size: clamp(0.75rem, min(0.95vw, 1.55vh), 1.05rem);
+  overflow-wrap: anywhere;
+}
+
 /* Cuándo y en qué sitio */
 .alerta-cuando {
   display: flex;
@@ -280,6 +345,8 @@
   list-style: none;
 }
 
+/* Las URLs llegan decodificadas, con el ataque literal (' OR '1'='1, ../../etc/passwd): se muestran tal cual,
+   con sus espacios, y se cortan en cualquier lugar para que las largas no ensanchen la tarjeta */
 .alerta-chip {
   max-width: 100%;
   padding: 0.55vh 0.7vw;
@@ -289,6 +356,7 @@
   color: #c9cad1;
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: clamp(0.75rem, min(0.95vw, 1.55vh), 1rem);
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
@@ -361,6 +429,11 @@
 
   .alerta-encontrada-estado {
     padding: 0.35vh 2vw;
+  }
+
+  .alerta-mitre-etiqueta {
+    gap: 1.5vw;
+    padding: 0 2.5vw;
   }
 
   /* La grilla pasa a una columna */
