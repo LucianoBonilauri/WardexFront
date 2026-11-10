@@ -48,7 +48,8 @@ export function mensajeDeError(error: unknown): string {
 type Metodo = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
 // Rutas para entrar, que no usan la sesión: no se les manda el token, y un 401 ahí no significa que la sesión venció
-const RUTAS_SIN_SESION = ['/auth/login', '/auth/crearusuario', '/auth/verificar', '/auth/reenviar-codigo']
+const RUTAS_SIN_SESION = ['/auth/login', '/auth/crearusuario', '/auth/verificar', '/auth/reenviar-codigo',
+  '/auth/olvide-password', '/auth/validar-codigo-recuperacion', '/auth/restablecer-password']
 
 // Los mensajes del backend que están pensados para mostrarse tal cual:
 // datos mal cargados (400), ya existe (409), demasiados intentos (429) y no se pudo mandar el mail (503)

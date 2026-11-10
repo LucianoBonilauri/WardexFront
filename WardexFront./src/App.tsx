@@ -6,6 +6,7 @@ import Credenciales from './Pages/credenciales.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
 import CodigoAutenticacion, { type Verificacion } from './Pages/ManejoDePerfil/CodigoAutenticacion.tsx'
 import IniciarSesion from './Pages/ManejoDePerfil/IniciarSesion.tsx'
+import OlvideContrasena from './Pages/ManejoDePerfil/OlvideContrasena.tsx'
 import Inicio from './Pages/inicio.tsx'
 import Perfil from './Pages/ManejoDePerfil/Perfil.tsx'
 import Registro from './Pages/ManejoDePerfil/Registro.tsx'
@@ -18,6 +19,7 @@ const RUTAS: Record<Pagina, string> = {
   registro: '/Registro',
   iniciarSesion: '/Iniciar_Sesion',
   codigoAutenticacion: '/Codigo_Autenticacion',
+  olvideContrasena: '/Recuperar_Contrasena',
   dashboard: '/Dashboard',
   perfil: '/Perfil',
 }
@@ -127,6 +129,10 @@ function App() {
 
   if (pagina === 'registro') {
     return <Registro onCambiarPagina={cambiarPagina} onPedirCodigo={pedirCodigo} />
+  }
+
+  if (pagina === 'olvideContrasena') {
+    return <OlvideContrasena onCambiarPagina={cambiarPagina} />
   }
 
   if (pagina === 'codigoAutenticacion' && verificacion) {

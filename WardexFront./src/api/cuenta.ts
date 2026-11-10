@@ -58,6 +58,23 @@ export async function iniciarSesion(correo: string, contrasena: string): Promise
   return datos.message ?? 'Te mandamos un código a tu mail'
 }
 
+// "Olvidé mi contraseña", paso 1: pide un código al mail. El backend responde igual exista o no el mail.
+export async function pedirRecuperacion(correo: string): Promise<string> {
+  const { message } = await pedir<{ message?: string }>('POST', '/auth/olvide-password', { mail: correo })
+  return message ?? 'Si el mail está registrado, te mandamos un código'
+}
+
+// Paso 2: valida el código sin gastarlo (el backend devuelve 400 si está mal o venció).
+export async function validarCodigoRecuperacion(correo: string, codigo: string): Promise<void> {
+  await pedir('POST', '/auth/validar-codigo-recuperacion', { mail: correo, codigo })
+}
+
+// Paso 3: pone la contraseña nueva. No devuelve token: después hay que iniciar sesión normalmente.
+export async function restablecerContrasena(correo: string, codigo: string, contrasena: string): Promise<string> {
+  const { message } = await pedir<{ message?: string }>('POST', '/auth/restablecer-password', { mail: correo, codigo, password_nueva: contrasena })
+  return message ?? 'Tu contraseña cambió. Ya podés iniciar sesión con la nueva'
+}
+
 // Lo que devuelve el registro
 type RespuestaRegistro = {
   message: string

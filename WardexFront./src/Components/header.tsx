@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import logo from '../assets/Logo_final.png'
 import './header.css'
 
-export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'codigoAutenticacion' | 'dashboard' | 'perfil'
+export type Pagina = 'inicio' | 'credenciales' | 'registro' | 'iniciarSesion' | 'codigoAutenticacion' | 'olvideContrasena' | 'dashboard' | 'perfil'
 
 // Las pantallas para entrar a una cuenta: ahí no se muestra "Iniciar Sesión"
-const PANTALLAS_DE_CUENTA: Pagina[] = ['registro', 'iniciarSesion', 'codigoAutenticacion']
+const PANTALLAS_DE_CUENTA: Pagina[] = ['registro', 'iniciarSesion', 'codigoAutenticacion', 'olvideContrasena']
 
 const NAV_ITEMS = ['Inicio', 'Instalación', 'Dashboard', 'Perfil'] as const
 type NavItem = (typeof NAV_ITEMS)[number]

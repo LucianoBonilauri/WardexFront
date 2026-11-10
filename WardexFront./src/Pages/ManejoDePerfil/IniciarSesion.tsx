@@ -98,6 +98,12 @@ function IniciarSesion({ onCambiarPagina, onPedirCodigo }: IniciarSesionProps) {
           </form>
 
           <p className="cuenta-footer">
+            <button type="button" className="cuenta-link" onClick={() => onCambiarPagina('olvideContrasena')}>
+              ¿Olvidaste tu contraseña?
+            </button>
+          </p>
+
+          <p className="cuenta-footer">
             ¿Todavía no tenés cuenta?{' '}
             <button type="button" className="cuenta-link" onClick={() => onCambiarPagina('registro')}>
               Registrate
