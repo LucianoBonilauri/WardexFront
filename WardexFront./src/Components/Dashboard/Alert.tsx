@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import type { Alerta, DetalleAlerta, Gravedad, Mitre } from '../../tipos.ts'
+import { armarPromptResolver } from './promptResolver.ts'
 import './Alert.css'
 
 const ETIQUETA: Record<Gravedad, string> = {
@@ -125,13 +126,15 @@ function EtiquetaMitre({ mitre }: { mitre: Mitre }) {
 type PanelDetalleProps = {
   detalle: DetalleAlerta
   tipo: TipoDeAlerta
+  // La clave del tipo tal como la manda el agente (escaneo_rutas, sql_i, ...), para armar el prompt de resolución
+  clave: string
   // Cuándo se abrió el panel, para decir "hoy" o "ayer"
   ahora: number
 }
 
 // Lo que se despliega con "Ver más". Las rutas, las herramientas y las líneas del log las escribe el atacante:
 // van siempre entre llaves, como texto. Nunca dangerouslySetInnerHTML, ni links, ni en un href o un src
-function PanelDetalle({ detalle, tipo, ahora }: PanelDetalleProps) {
+function PanelDetalle({ detalle, tipo, clave, ahora }: PanelDetalleProps) {
   const lineas = detalle.lineasEjemplo.map(leerLinea)
   // Rutas que existen en el sitio: respondieron 2xx y no son la página principal
   const encontradas = lineas.filter((linea) => linea.exito && linea.ruta !== '/')
@@ -139,6 +142,25 @@ function PanelDetalle({ detalle, tipo, ahora }: PanelDetalleProps) {
   // El porcentaje que corresponde al tipo. null si el tipo no muestra ninguno o la alerta no lo trae
   const porcentaje = tipo.porcentaje ? detalle[tipo.porcentaje.campo] : null
   const hayDatos = ipPrincipal !== undefined || detalle.pedidos !== null || porcentaje !== null
+
+  const cuandoTexto = cuando(detalle.desde, detalle.hasta, ahora)
+  // Un prompt listo para pegar en una IA, con los datos de esta alerta, para que guíe a resolver el ataque
+  const promptResolver = armarPromptResolver({
+    clave,
+    detalle,
+    cuando: cuandoTexto,
+    rutasEncontradas: encontradas.map((linea) => linea.ruta).filter((ruta): ruta is string => ruta !== undefined),
+  })
+  const [copiado, setCopiado] = useState(false)
+
+  const copiarPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(promptResolver)
+      setCopiado(true)
+    } catch {
+      setCopiado(false)
+    }
+  }
 
   return (
     <>
@@ -165,7 +187,7 @@ function PanelDetalle({ detalle, tipo, ahora }: PanelDetalleProps) {
       {detalle.mitre && <EtiquetaMitre mitre={detalle.mitre} />}
 
       <p className="alerta-cuando">
-        <time dateTime={detalle.desde.toISOString()}>{cuando(detalle.desde, detalle.hasta, ahora)}</time>
+        <time dateTime={detalle.desde.toISOString()}>{cuandoTexto}</time>
         {detalle.host && (
           <>
             <span className="alerta-separador" aria-hidden="true">·</span>
@@ -237,6 +259,18 @@ function PanelDetalle({ detalle, tipo, ahora }: PanelDetalleProps) {
           </pre>
         </div>
       )}
+
+      {/* Prompt para resolver: texto armado con los datos de la alerta, listo para pegar en una IA */}
+      <section className="alerta-resolver">
+        <h4 className="alerta-subtitulo">Resolver con IA</h4>
+        <p className="alerta-resolver-aviso">
+          Copiá este prompt y pegalo en Claude (o la IA que uses) para que te guíe a resolverlo paso a paso.
+        </p>
+        <pre className="alerta-resolver-prompt" tabIndex={0}>{promptResolver}</pre>
+        <button type="button" className="alerta-resolver-copiar" onClick={copiarPrompt}>
+          {copiado ? 'Copiado' : 'Copiar prompt'}
+        </button>
+      </section>
     </>
   )
 }
@@ -277,7 +311,7 @@ function Alert({ numero, alerta }: AlertProps) {
 
       {/* Cerrado queda vacío y oculto: así aria-controls siempre apunta a algo */}
       <div id={idDetalle} className="alerta-detalle" hidden={abiertoEn === null}>
-        {abiertoEn !== null && <PanelDetalle detalle={alerta.detalle} tipo={tipo} ahora={abiertoEn} />}
+        {abiertoEn !== null && <PanelDetalle detalle={alerta.detalle} tipo={tipo} clave={alerta.tipo} ahora={abiertoEn} />}
       </div>
     </li>
   )
