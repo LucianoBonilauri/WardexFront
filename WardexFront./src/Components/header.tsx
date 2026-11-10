@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { hayTokenVigente } from '../api/cliente.ts'
+import { cerrarSesion } from '../api/cuenta.ts'
 import logo from '../assets/Logo_final.png'
 import './header.css'
 
@@ -76,11 +78,26 @@ function Header({ paginaActual, onCambiarPagina }: HeaderProps) {
         ))}
       </nav>
 
-      {/* En las pantallas de cuenta no se muestra: ya estás entrando. Sin él, el menú queda pegado a la derecha */}
+      {/* En las pantallas de cuenta no se muestra: ya estás entrando. Sin él, el menú queda pegado a la derecha.
+          Con sesión abierta es "Cerrar sesión" (mismo botón); si no, "Iniciar Sesión". */}
       {!PANTALLAS_DE_CUENTA.includes(paginaActual) && (
-        <button type="button" className="login-button" onClick={() => onCambiarPagina('iniciarSesion')}>
-          Iniciar Sesión
-        </button>
+        hayTokenVigente() ? (
+          <button
+            type="button"
+            className="login-button"
+            onClick={() => {
+              cerrarSesion()
+              // Recarga a Inicio para que toda la app arranque sin sesión, sin estado viejo
+              window.location.assign('/Inicio')
+            }}
+          >
+            Cerrar sesión
+          </button>
+        ) : (
+          <button type="button" className="login-button" onClick={() => onCambiarPagina('iniciarSesion')}>
+            Iniciar Sesión
+          </button>
+        )
       )}
     </header>
   )
