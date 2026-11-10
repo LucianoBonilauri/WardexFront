@@ -90,10 +90,23 @@ function Credenciales({ onCambiarPagina }: CredencialesProps) {
           {servidor ? (
             // Ya tiene un servidor: se muestra cuál es y se puede regenerar la key (no crear otro)
             <>
-              <p className="servidor-actual">
-                Tu servidor: <strong>{servidor.nombre}</strong>
-                {servidor.fragmentoKey && <> · API key <strong>{servidor.fragmentoKey}</strong></>}
-              </p>
+              <p className="servidor-titulo">Tu servidor</p>
+              <dl className="servidor-tabla">
+                <div className="servidor-fila">
+                  <dt className="servidor-label">Nombre</dt>
+                  <dd className="servidor-valor">{servidor.nombre}</dd>
+                </div>
+                <div className="servidor-fila">
+                  <dt className="servidor-label">API key</dt>
+                  <dd className="servidor-valor es-key">{servidor.fragmentoKey ?? '—'}</dd>
+                </div>
+                <div className="servidor-fila">
+                  <dt className="servidor-label">Estado</dt>
+                  <dd className={servidor.conectado ? 'servidor-valor es-conectado' : 'servidor-valor es-desconectado'}>
+                    {servidor.conectado ? 'Conectado' : 'Desconectado'}
+                  </dd>
+                </div>
+              </dl>
               <button type="button" className="generar-button" onClick={regenerar} disabled={generando}>
                 {generando ? 'Regenerando…' : 'Regenerar API key'}
               </button>

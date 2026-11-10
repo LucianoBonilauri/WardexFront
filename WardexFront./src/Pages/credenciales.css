@@ -259,3 +259,70 @@
     padding: 0 5vw;
   }
 }
+
+/* Ficha del servidor: tablita de valores con título (estilo panel de Vercel) */
+.servidor-titulo {
+  width: 43.4vw;
+  margin: 0 0 -2vh;
+  align-self: center;
+  color: #80828c;
+  font-size: clamp(0.8rem, min(1.3vw, 2.2vh), 1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.servidor-tabla {
+  width: 43.4vw;
+  margin: 0;
+  border: 0.15vh solid #40424d;
+  border-radius: 1.6vh;
+  background: #171a27;
+  overflow: hidden;
+}
+
+.servidor-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2vw;
+  padding: 1.8vh 2vw;
+  border-bottom: 0.15vh solid #2a2d3b;
+}
+
+.servidor-fila:last-child {
+  border-bottom: 0;
+}
+
+.servidor-label {
+  margin: 0;
+  color: #80828c;
+  font-size: clamp(0.85rem, min(1.4vw, 2.4vh), 1.05rem);
+}
+
+.servidor-valor {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(0.9rem, min(1.5vw, 2.6vh), 1.1rem);
+  text-align: right;
+  word-break: break-all;
+}
+
+.servidor-valor.es-key {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--violet);
+}
+
+.servidor-valor.es-conectado {
+  color: #4fb477;
+}
+
+.servidor-valor.es-desconectado {
+  color: #80828c;
+}
+
+@media (max-width: 52rem) {
+  .servidor-titulo,
+  .servidor-tabla {
+    width: 90vw;
+  }
+}
