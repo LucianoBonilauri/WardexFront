@@ -73,4 +73,7 @@ export type Servidor = {
   conectado: boolean
   // La última vez que el agente se comunicó. null si nunca lo hizo
   ultimoUso: Date | null
+  // Un pedazo de la API key para reconocerla ("wdx_…ab12"). La key completa solo se ve al crearla
+  // o regenerarla. null en servidores creados antes de que existiera el fragmento
+  fragmentoKey: string | null
 }
